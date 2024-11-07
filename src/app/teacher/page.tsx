@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function TeacherLogin() {
   const [email, setEmail] = useState('');
@@ -29,11 +31,26 @@ export default function TeacherLogin() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="flex flex-col items-center justify-center py-10 bg-blue-600 text-white shadow-lg">
-        <h1 className="text-4xl font-bold">Teacher Login - AttendMate</h1>
-        <p className="mt-4 text-lg max-w-lg text-center">
-          Log in to manage your classes and attendance records.
-        </p>
+      <header className="flex flex-col bg-blue-600 text-white shadow-lg">
+        <div className='m-2'>
+          <Link href="/">
+            <Image
+              src="/attendmatelogo.png"
+              alt="AttendMate Logo"
+              width={50}
+              height={50}
+              className="mr-4 object-contain w-[50px] sm:w-[60px] md:w-[70px] lg:w-[80px] xl:w-[90px]"
+            />
+          </Link>
+        </div>
+        
+        <div className="flex flex-col text-center py-5">
+          <h1 className="text-4xl font-bold">AttendMate <br /> Teacher Login </h1>
+          <p className="text-lg text-center">
+            Log in to manage your classes 
+            <br />and attendance records.
+          </p>
+        </div>
       </header>
 
       <main className="flex-grow flex items-center justify-center py-12 px-6">

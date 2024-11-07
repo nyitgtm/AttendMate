@@ -1,19 +1,32 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 text-white">
       {/* Header Section with Animations */}
-      <header className="flex flex-col items-center justify-center py-16 md:py-24 bg-opacity-80 backdrop-blur-md animate-fadeIn">
-        <h1 className="text-5xl font-extrabold text-center animate-slideIn">Welcome to AttendMate</h1>
+      <header className="flex flex-col items-center justify-center py-8 md:py-20 bg-opacity-80 backdrop-blur-md animate-fadeIn">
+        <h1 className="text-5xl font-extrabold text-center py-2 animate-slideIn">AttendMate</h1>
+        <div className="w-sm max-w-xs mb-4">
+          <Image
+            src="/attendmatelogo.png" // Ensure your logo is placed in the public folder as 'logo.png'
+            alt="AttendMate Logo"
+            layout="responsive" // Ensures the image scales dynamically
+            width={1} // Set width and height to 1 to use the container's width
+            height={1} // Keeps aspect ratio and scales with the div
+            className="object-contain" // Ensures the logo fits within the container
+          />
+        </div>
         <p className="mt-4 text-xl md:text-2xl max-w-lg text-center animate-fadeIn opacity-70">
-          Simplify attendance tracking in your classroom. Choose your login type below to get started.
+          Simplify attendance tracking in your classroom. 
+          <br />
+          Choose your login type below to get started.
         </p>
       </header>
-      
+
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col items-center justify-center space-y-8 py-12 px-6">
+      <main className="flex-grow flex flex-col items-center justify-center space-y-8 px-6">
         {/* Teacher Login Link */}
         <Link href="/teacher" className="w-full max-w-sm py-4 px-8 bg-blue-700 text-white font-semibold text-xl text-center rounded-xl shadow-lg transform transition duration-300 hover:scale-105 hover:bg-blue-800 hover:shadow-xl hover:ring-2 hover:ring-blue-400 active:scale-95">
           <span className="block animate-buttonText">Teacher Login</span>
