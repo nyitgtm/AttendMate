@@ -1,8 +1,7 @@
-// pages/student.js
-
-"use client";
+"use client"; // Ensure this component is rendered on the client-side
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -10,8 +9,9 @@ export default function StudentLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const router = useRouter();
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const res = await fetch('/api/auth/studentlogin', {
@@ -23,9 +23,17 @@ export default function StudentLogin() {
         const data = await res.json();
 
         if (res.ok) {
-            setMessage(data.message);
+            // Save student data to localStorage after successful login
+            localStorage.setItem("studentData", JSON.stringify({
+                studentId: data.studentId,
+                studentName: data.studentName,
+                classes: data.classes,
+            }));
+
+            // Redirect to dashboard after saving data
+            router.push("/student/dashboard");
         } else {
-            setMessage(data.message);
+            setMessage(data.message); // Handle errors
         }
     };
 
@@ -33,22 +41,22 @@ export default function StudentLogin() {
         <div className="flex flex-col min-h-screen bg-gray-50">
             <header className="flex flex-col bg-green-600 text-white shadow-lg">
                 <div className='m-2'>
-                <Link href="/">
-                    <Image
-                    src="/attendmatelogo.png"
-                    alt="AttendMate Logo"
-                    width={50}
-                    height={50}
-                    className="mr-4 object-contain w-[50px] sm:w-[60px] md:w-[70px] lg:w-[80px] xl:w-[90px]"
-                    />
-                </Link>
+                    <Link href="/">
+                        <Image
+                            src="/attendmatelogo.png"
+                            alt="AttendMate Logo"
+                            width={50}
+                            height={50}
+                            className="mr-4 object-contain w-[50px] sm:w-[60px] md:w-[70px] lg:w-[80px] xl:w-[90px]"
+                        />
+                    </Link>
                 </div>
-                
+
                 <div className="flex flex-col text-center py-5">
-                <h1 className="text-4xl font-bold">AttendMate <br /> Student Login </h1>
-                <p className="text-lg text-center">
-                    Check in for attendance <br /> and view your records.
-                </p>
+                    <h1 className="text-4xl font-bold">AttendMate <br /> Student Login </h1>
+                    <p className="text-lg text-center">
+                        Check in for attendance <br /> and view your records.
+                    </p>
                 </div>
             </header>
 
