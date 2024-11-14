@@ -12,6 +12,7 @@ export default function TeacherLanding() {
   const [activeTab, setActiveTab] = useState<'present' | 'absent'>('present'); // Active tab state
   const [isScanning, setIsScanning] = useState(false); // State for QR scanning in progress
   const [isMiniboxVisible, setMiniboxVisible] = useState(false); // State for minibox visibility
+  const [isClassesModalOpen, setIsClassesModalOpen] = useState(false); // State for the classes modal
   const sidebarRef = useRef<HTMLDivElement | null>(null); // Ref for sidebar
   const router = useRouter();
 
@@ -30,6 +31,20 @@ export default function TeacherLanding() {
   // Mock student data
   const presentStudents = ['Student A', 'Student B', 'Student E'];
   const absentStudents = ['Student C', 'Student D'];
+
+  // Mock courses data for manage classes modal
+  const courses = [
+    'Introduction to Programming',
+    'Advanced Mathematics',
+    'History of Ancient Civilizations',
+    'Chemistry 101',
+    'Machine Learning Fundamentals',
+    'Psychology 101',
+    'Biology 202',
+    'Data Science with Python',
+    'Computer Networks',
+    'Web Development 101',
+  ];
 
   // Sidebar component
   const Sidebar = ({ teacher }: { teacher: Teacher | null }) => {
@@ -138,6 +153,11 @@ export default function TeacherLanding() {
     setMiniboxVisible(!isMiniboxVisible); // Toggle visibility state
   };
 
+  // Toggle the Manage Classes modal
+  const toggleManageClassesModal = () => {
+    setIsClassesModalOpen(!isClassesModalOpen);
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
       {/* Main Content */}
@@ -177,12 +197,16 @@ export default function TeacherLanding() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Link href="/teacher/classes">
-              <div className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition">
-                <h3 className="text-lg font-bold mb-2">Manage Classes</h3>
-                <p className="text-gray-600">View and manage your classes.</p>
-              </div>
-            </Link>
+            {/* Manage Classes Button */}
+            <div
+              onClick={toggleManageClassesModal} // Toggle the Manage Classes modal
+              className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer"
+            >
+              <h3 className="text-lg font-bold mb-2">Manage Classes</h3>
+              <p className="text-gray-600">View and manage your courses.</p>
+            </div>
+
+            {/* Track Attendance Button */}
             <div
               onClick={toggleMinibox} // Toggle minibox visibility
               className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer w-full"
@@ -190,6 +214,8 @@ export default function TeacherLanding() {
               <h3 className="text-lg font-bold mb-2">Track Attendance</h3>
               <p className="text-gray-600">Click to track attendance.</p>
             </div>
+
+            {/* Generate Report Button */}
             <div
               onClick={handleGenerateReport}
               className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer"
@@ -197,6 +223,8 @@ export default function TeacherLanding() {
               <h3 className="text-lg font-bold mb-2">Generate Reports</h3>
               <p className="text-gray-600">Create attendance and performance reports.</p>
             </div>
+
+            {/* Scan QR Code Button */}
             <div
               onClick={handleScanQRCode}
               className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer"
@@ -274,7 +302,6 @@ export default function TeacherLanding() {
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 mx-auto mb-4"></div>
             <p className="text-xl font-semibold">Scanning in progress...</p>
-            {/* Close Button */}
             <button
               onClick={handleCloseScanBox}
               className="mt-4 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -284,6 +311,46 @@ export default function TeacherLanding() {
           </div>
         </div>
       )}
+
+      {/* Manage Classes Modal */}
+{isClassesModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+      <div className="mb-4">
+        <h3 className="text-xl font-semibold">Manage Classes</h3>
+        <p className="text-gray-600">Your courses</p>
+      </div>
+      <div className="max-h-80 overflow-y-auto">
+        <ul>
+          {courses.map((course, index) => (
+            <li
+              key={index}
+              className="py-3 px-6 border-b border-gray-200 text-lg font-semibold cursor-pointer hover:bg-gray-100 transition-all duration-200"
+            >
+              {course}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Add Course Button */}
+      <button
+        onClick={() => alert("Add a new course functionality coming soon!")}
+        className="w-full bg-blue-600 text-white py-3 px-4 rounded-md mt-4 hover:bg-blue-700 transition duration-200"
+      >
+        Add a Course
+      </button>
+
+      <button
+        onClick={toggleManageClassesModal} // Close the modal
+        className="w-full bg-gray-600 text-white py-2 px-4 rounded-md mt-4"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* Modal for Generate Report */}
       {isReportModalOpen && (
