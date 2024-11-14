@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 export default function TeacherLanding() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false); // State for modal
+  const [activeTab, setActiveTab] = useState<'present' | 'absent'>('present'); // Active tab state
   const sidebarRef = useRef<HTMLDivElement | null>(null); // Ref for sidebar
   const router = useRouter();
 
@@ -22,6 +24,10 @@ export default function TeacherLanding() {
       className: string;
     }[];
   };
+
+  // Mock student data
+  const presentStudents = ['Student A', 'Student B', 'Student E'];
+  const absentStudents = ['Student C', 'Student D'];
 
   // Sidebar component
   const Sidebar = ({ teacher }: { teacher: Teacher | null }) => {
@@ -64,17 +70,13 @@ export default function TeacherLanding() {
 
   // Close sidebar if clicked outside
   useEffect(() => {
-    // Event handler for detecting clicks outside the sidebar
     const handleClickOutside = (event: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
         setSidebarOpen(false); // Close the sidebar if clicked outside
       }
     };
 
-    // Attach event listener to the document
     document.addEventListener('mousedown', handleClickOutside);
-
-    // Cleanup the event listener when the component unmounts or the effect reruns
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -91,6 +93,30 @@ export default function TeacherLanding() {
       router.push('/teacher/login');
     }
   }, [router]);
+
+  const handleGenerateReport = () => {
+    setIsReportModalOpen(true); // Open the modal when the button is clicked
+  };
+
+  const handleCloseModal = () => {
+    setIsReportModalOpen(false); // Close the modal
+  };
+
+  const handleTabChange = (tab: 'present' | 'absent') => {
+    setActiveTab(tab); // Switch between tabs
+  };
+
+  const handlePrintReport = () => {
+    const printContent = document.getElementById('report-content');
+    if (printContent) {
+      const printWindow = window.open('', '', 'height=500,width=800');
+      printWindow?.document.write('<html><head><title>Attendance Report</title></head><body>');
+      printWindow?.document.write(printContent?.innerHTML || '');
+      printWindow?.document.write('</body></html>');
+      printWindow?.document.close();
+      printWindow?.print();
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
@@ -143,12 +169,13 @@ export default function TeacherLanding() {
                 <p className="text-gray-600">Monitor student attendance easily.</p>
               </div>
             </Link>
-            <Link href="/teacher/reports">
-              <div className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition">
-                <h3 className="text-lg font-bold mb-2">Generate Reports</h3>
-                <p className="text-gray-600">Create attendance and performance reports.</p>
-              </div>
-            </Link>
+            <div
+              onClick={handleGenerateReport}
+              className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer"
+            >
+              <h3 className="text-lg font-bold mb-2">Generate Reports</h3>
+              <p className="text-gray-600">Create attendance and performance reports.</p>
+            </div>
             <Link href="/teacher/scanner">
               <div className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition">
                 <h3 className="text-lg font-bold mb-2">Scan QR Codes</h3>
@@ -165,6 +192,71 @@ export default function TeacherLanding() {
 
       {/* Sidebar */}
       <Sidebar teacher={teacher} />
+
+      {/* Modal for Generate Report */}
+      {isReportModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-center">Generate Attendance Report</h3>
+            </div>
+
+            {/* Tabs for Present and Absent */}
+            <div className="flex justify-center space-x-4 mb-4">
+              <button
+                onClick={() => handleTabChange('present')}
+                className={`py-2 px-4 ${activeTab === 'present' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'} rounded-md`}
+              >
+                Present
+              </button>
+              <button
+                onClick={() => handleTabChange('absent')}
+                className={`py-2 px-4 ${activeTab === 'absent' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'} rounded-md`}
+              >
+                Absent
+              </button>
+            </div>
+
+            <div id="report-content" className="mb-4">
+              {activeTab === 'present' ? (
+                <div>
+                  <h4 className="text-lg font-semibold">Present Students</h4>
+                  <ul className="list-disc pl-5">
+                    {presentStudents.map((student, index) => (
+                      <li key={index}>{student}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <div>
+                  <h4 className="text-lg font-semibold">Absent Students</h4>
+                  <ul className="list-disc pl-5">
+                    {absentStudents.map((student, index) => (
+                      <li key={index}>{student}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Print and Close Buttons */}
+            <div className="flex justify-between">
+              <button
+                onClick={handlePrintReport}
+                className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Print Report
+              </button>
+              <button
+                onClick={handleCloseModal}
+                className="py-2 px-4 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
