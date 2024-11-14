@@ -8,6 +8,18 @@ import { useRouter } from 'next/navigation';
 export default function TeacherLanding() {
   const [teacherName, setTeacherName] = useState('');
   const router = useRouter();
+  
+  type Teacher = {
+    teacherId: string; // Unique identifier for the teacher
+    teacherName: string; // Teacher's full name
+    teacherEmail: string; // Teacher's email address
+    password: string; // Hashed password (Note: sensitive data should be handled securely)
+    classes: {
+      classId: string; // Unique identifier for the class
+      className: string; // Name of the class
+    }[]; // Array of classes the teacher is associated with
+  };
+  
 
   useEffect(() => {
     const storedData = localStorage.getItem('teacherData');
