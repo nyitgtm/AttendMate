@@ -83,6 +83,12 @@ export default function TeacherLanding() {
               <p className="text-gray-600">Create attendance and performance reports.</p>
             </div>
           </Link>
+          <Link href="/teacher/scanner">
+            <div className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition">
+              <h3 className="text-lg font-bold mb-2">Scan QR Codes</h3>
+              <p className="text-gray-600">Scan attendance of students</p>
+            </div>
+          </Link>
         </div>
       </main>
 
