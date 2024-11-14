@@ -11,6 +11,7 @@ export default function TeacherLanding() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false); // State for modal
   const [activeTab, setActiveTab] = useState<'present' | 'absent'>('present'); // Active tab state
   const [isScanning, setIsScanning] = useState(false); // State for QR scanning in progress
+  const [isMiniboxVisible, setMiniboxVisible] = useState(false); // State for minibox visibility
   const sidebarRef = useRef<HTMLDivElement | null>(null); // Ref for sidebar
   const router = useRouter();
 
@@ -132,6 +133,11 @@ export default function TeacherLanding() {
     setIsScanning(false); // Close the scanning box manually
   };
 
+  // Toggle minibox visibility
+  const toggleMinibox = () => {
+    setMiniboxVisible(!isMiniboxVisible); // Toggle visibility state
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
       {/* Main Content */}
@@ -167,7 +173,7 @@ export default function TeacherLanding() {
           )}
 
           <h2 className="text-lg font-semibold text-center mb-6 text-red-500">
-            What would you like to do today? <br /> 
+            What would you like to do today? <br />
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -177,12 +183,13 @@ export default function TeacherLanding() {
                 <p className="text-gray-600">View and manage your classes.</p>
               </div>
             </Link>
-            <Link href="/teacher/attendance">
-              <div className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition">
-                <h3 className="text-lg font-bold mb-2">Track Attendance</h3>
-                <p className="text-gray-600">Monitor student attendance easily.</p>
-              </div>
-            </Link>
+            <div
+              onClick={toggleMinibox} // Toggle minibox visibility
+              className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer w-full"
+            >
+              <h3 className="text-lg font-bold mb-2">Track Attendance</h3>
+              <p className="text-gray-600">Click to track attendance.</p>
+            </div>
             <div
               onClick={handleGenerateReport}
               className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer"
@@ -207,6 +214,59 @@ export default function TeacherLanding() {
 
       {/* Sidebar */}
       <Sidebar teacher={teacher} />
+
+      {/* Track Attendance Minibox */}
+      {isMiniboxVisible && (
+        <div className="fixed top-1/3 left-1/2 transform -translate-x-1/2 bg-white p-6 shadow-lg rounded-lg z-50 w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw]">
+          <div className="flex justify-between items-center mb-4">
+            {/* Present Header Section */}
+            <div className="w-1/2 text-center bg-blue-600 text-white py-2 rounded-l-lg">
+              <h3 className="font-bold text-xl">Present</h3>
+            </div>
+            {/* Absent Header Section */}
+            <div className="w-1/2 text-center bg-blue-600 text-white py-2 rounded-r-lg">
+              <h3 className="font-bold text-xl">Absent</h3>
+            </div>
+          </div>
+
+          <div className="flex">
+            {/* Present Students Section */}
+            <div className="w-1/2 border-r-2 pr-4">
+              <ul className="list-disc pl-5">
+                {presentStudents.map((student, index) => (
+                  <li key={index} className="flex items-center mb-2">
+                    <span>{student}</span>
+                    <span className="ml-2 text-green-600">✅</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Divider */}
+            <div className="w-1px bg-gray-400"></div>
+
+            {/* Absent Students Section */}
+            <div className="w-1/2 pl-4">
+              <ul className="list-disc pl-5">
+                {absentStudents.map((student, index) => (
+                  <li key={index} className="flex items-center mb-2">
+                    <span>{student}</span>
+                    <span className="ml-2 text-red-600">❌</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Close Button */}
+          <button
+            onClick={toggleMinibox}
+            className="w-full bg-gray-600 text-white py-2 px-4 rounded-md mt-4"
+          >
+            Close
+          </button>
+        </div>
+      )}
 
       {/* Scanning In Progress Popup */}
       {isScanning && (
@@ -292,3 +352,4 @@ export default function TeacherLanding() {
     </div>
   );
 }
+
