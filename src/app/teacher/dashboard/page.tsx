@@ -10,6 +10,7 @@ export default function TeacherLanding() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false); // State for modal
   const [activeTab, setActiveTab] = useState<'present' | 'absent'>('present'); // Active tab state
+  const [isScanning, setIsScanning] = useState(false); // State for QR scanning in progress
   const sidebarRef = useRef<HTMLDivElement | null>(null); // Ref for sidebar
   const router = useRouter();
 
@@ -118,6 +119,19 @@ export default function TeacherLanding() {
     }
   };
 
+  const handleScanQRCode = () => {
+    setIsScanning(true); // Show the scanning in progress box
+    // Simulate the scanning process
+    setTimeout(() => {
+      // Simulate a successful scan after 3 seconds
+      // The box stays visible unless the user clicks Close
+    }, 3000); // Simulate a 3-second scanning process
+  };
+
+  const handleCloseScanBox = () => {
+    setIsScanning(false); // Close the scanning box manually
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50 relative">
       {/* Main Content */}
@@ -176,12 +190,13 @@ export default function TeacherLanding() {
               <h3 className="text-lg font-bold mb-2">Generate Reports</h3>
               <p className="text-gray-600">Create attendance and performance reports.</p>
             </div>
-            <Link href="/teacher/scanner">
-              <div className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition">
-                <h3 className="text-lg font-bold mb-2">Scan QR Codes</h3>
-                <p className="text-gray-600">Scan attendance of students</p>
-              </div>
-            </Link>
+            <div
+              onClick={handleScanQRCode}
+              className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition cursor-pointer"
+            >
+              <h3 className="text-lg font-bold mb-2">Scan QR Codes</h3>
+              <p className="text-gray-600">Scan attendance of students</p>
+            </div>
           </div>
         </main>
 
@@ -192,6 +207,23 @@ export default function TeacherLanding() {
 
       {/* Sidebar */}
       <Sidebar teacher={teacher} />
+
+      {/* Scanning In Progress Popup */}
+      {isScanning && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-xl font-semibold">Scanning in progress...</p>
+            {/* Close Button */}
+            <button
+              onClick={handleCloseScanBox}
+              className="mt-4 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal for Generate Report */}
       {isReportModalOpen && (
