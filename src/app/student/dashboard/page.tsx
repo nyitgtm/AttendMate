@@ -61,6 +61,7 @@ export default function Dashboard() {
 
     const toggleProfileSidebar = () => setIsProfileOpen(!isProfileOpen);
     const toggleClassesView = () => setShowClasses(!showClasses);
+    const toggleCalendarView = () => setIsCalendarOpen(!isCalendarOpen);
 
     const handleLogout = () => {
         setShowLogoutConfirmation(true);
@@ -195,7 +196,7 @@ export default function Dashboard() {
 
             {/* Calendar Modal */}
             {isCalendarOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center text-black">
                     <div className="bg-white p-6 rounded-lg shadow-lg">
                         <button
                             onClick={() => setIsCalendarOpen(false)}
@@ -228,7 +229,7 @@ export default function Dashboard() {
                 <button onClick={toggleClassesView} className="text-green-600 font-semibold py-2 px-4 border-2 border-gray-300 rounded-md hover:bg-green-100 transition">
                     Classes
                 </button>
-                <button onClick={() => setIsCalendarOpen(true)} className="text-green-600 font-semibold py-2 px-4 border-2 border-gray-300 rounded-md hover:bg-green-100 transition">
+                <button onClick={toggleCalendarView} className="text-green-600 font-semibold py-2 px-4 border-2 border-gray-300 rounded-md hover:bg-green-100 transition">
                     Attendance
                 </button>
             </nav>
