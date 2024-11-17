@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import QrScanner from '../components/QrScanner';
 
 export default function TeacherLanding() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
@@ -159,7 +160,7 @@ export default function TeacherLanding() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 relative">
+    <div className="flex min-h-screen bg-gray-50 relative text-black">
       {/* Main Content */}
       <div className="flex-grow bg-white p-6">
         <header className="flex items-center justify-between bg-blue-600 text-white shadow-lg p-4">
@@ -300,8 +301,7 @@ export default function TeacherLanding() {
       {isScanning && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-xl font-semibold">Scanning in progress...</p>
+            <QrScanner />
             <button
               onClick={handleCloseScanBox}
               className="mt-4 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700"
