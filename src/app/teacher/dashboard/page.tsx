@@ -34,18 +34,18 @@ export default function TeacherLanding() {
   const absentStudents = ['Student C', 'Student D'];
 
   // Mock courses data for manage classes modal
-  const courses = [
-    'Introduction to Programming',
-    'Advanced Mathematics',
-    'History of Ancient Civilizations',
-    'Chemistry 101',
-    'Machine Learning Fundamentals',
-    'Psychology 101',
-    'Biology 202',
-    'Data Science with Python',
-    'Computer Networks',
-    'Web Development 101',
-  ];
+  // const courses = [
+  //   'Introduction to Programming',
+  //   'Advanced Mathematics',
+  //   'History of Ancient Civilizations',
+  //   'Chemistry 101',
+  //   'Machine Learning Fundamentals',
+  //   'Psychology 101',
+  //   'Biology 202',
+  //   'Data Science with Python',
+  //   'Computer Networks',
+  //   'Web Development 101',
+  // ];
 
   // Sidebar component
   const Sidebar = ({ teacher }: { teacher: Teacher | null }) => {
@@ -322,12 +322,12 @@ export default function TeacherLanding() {
       </div>
       <div className="max-h-80 overflow-y-auto">
         <ul>
-          {courses.map((course, index) => (
+          {teacher && teacher.classes.map((teacherClass, index) => (
             <li
               key={index}
               className="py-3 px-6 border-b border-gray-200 text-lg font-semibold cursor-pointer hover:bg-gray-100 transition-all duration-200"
             >
-              {course}
+              {teacherClass.classId + ": " + teacherClass.className}
             </li>
           ))}
         </ul>
