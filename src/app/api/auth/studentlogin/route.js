@@ -19,8 +19,7 @@ export async function POST(req) {
     }
 
     // Compare the hashed password stored in the database with the provided password
-    // const isMatch = await bcrypt.compare(password, user.password);
-    const isMatch = password === user.password; //temp | havent made the change to bcrypt yet
+    const isMatch = password === user.password; // Temp | haven't made the change to bcrypt yet
 
     if (!isMatch) {
         client.close();
@@ -29,14 +28,40 @@ export async function POST(req) {
         });
     }
 
+    // Convert MongoDB's native types to normal types (e.g., `points` from `$numberInt`)
+    const points = user.points.$numberInt ? parseInt(user.points.$numberInt) : user.points;
+    const classes = user.classes.map((classData) => ({
+        classId: classData.classId,
+        classPoints: classData.classPoints.$numberInt ? parseInt(classData.classPoints.$numberInt) : classData.classPoints,
+        attendance: classData.attendance.map((attendanceRecord) => {
+            // Correctly format the scheduledTime and checkInTime if they are in MongoDB's $date format
+            const scheduledTime = attendanceRecord.scheduledTime?.$date
+                ? new Date(attendanceRecord.scheduledTime.$date).toISOString()
+                : new Date(attendanceRecord.scheduledTime).toISOString();
+
+            const checkInTime = attendanceRecord.checkInTime?.$date
+                ? new Date(attendanceRecord.checkInTime.$date).toISOString()
+                : new Date(attendanceRecord.checkInTime).toISOString();
+
+            return {
+                ...attendanceRecord,
+                scheduledTime,
+                checkInTime,
+                points: attendanceRecord.points.$numberInt ? parseInt(attendanceRecord.points.$numberInt) : attendanceRecord.points
+            };
+        }),
+    }));
+
     // Successful login response with user data
     client.close();
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
         message: 'Login successful!',
         studentId: user.studentId,
         studentName: user.studentName,
-        points: user.points,
-        classes: user.classes
+        email: user.studentEmail,
+        macAddress: user.macAddress,
+        points,
+        classes
     }), {
         status: 200,
     });
