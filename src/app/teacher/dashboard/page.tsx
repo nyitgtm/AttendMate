@@ -15,6 +15,7 @@ export default function TeacherLanding() {
   const [isMiniboxVisible, setMiniboxVisible] = useState(false);
   const [isClassesModalOpen, setIsClassesModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<string | null>(null); // State for selected class
+  const [students, setStudents] = useState<Student[] | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
@@ -30,7 +31,24 @@ export default function TeacherLanding() {
     }[];
   };
 
+  //Student Type Definition
+  type Student = {
+    studentId: string;
+    studentName: string;
+    studentEmail: string;
+    studentPicture: string; // Add a field for profile picture URL
+    classes: {
+        classId: string;
+        classPoints: number;
+        attendance: {
+            status: string;
+            scheduledTime: string;
+        }[];
+    }[];
+  };
+
   // Mock student data
+  
   const presentStudents = ['Student A', 'Student B', 'Student E'];
   const absentStudents = ['Student C', 'Student D'];
 
@@ -139,10 +157,29 @@ export default function TeacherLanding() {
     setIsClassesModalOpen(!isClassesModalOpen);
   };
 
-  const handleClassSelect = (classId: string) => {
+  const handleClassSelect = async (classId: string) => {
     setSelectedClass(classId);
     setIsClassesModalOpen(false);
-  };
+
+    console.log('Selected class:', classId);
+
+    const res = await fetch('/api/getstudentsbycoursename', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseName: classId }), // Ensure key matches server-side expectations
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+        setStudents(data); // Assuming data is an array of students
+        console.log(data);
+    } else {
+        console.error(data.message); // Log error to console for debugging
+        setStudents([]);
+    }
+};
+
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative text-black">
@@ -370,8 +407,8 @@ export default function TeacherLanding() {
                 <div>
                   <h4 className="text-lg font-semibold">Present Students</h4>
                   <ul className="list-disc pl-5">
-                    {presentStudents.map((student, index) => (
-                      <li key={index}>{student}</li>
+                    {students && students.map((student, index) => (
+                      <li key={index}>{student.studentName}</li>
                     ))}
                   </ul>
                 </div>
