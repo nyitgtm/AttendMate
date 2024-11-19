@@ -175,9 +175,6 @@ export default function TeacherLanding() {
       return () => clearInterval(intervalId);
   }, []);
 
-  const averagePrecipitation = weatherData && weatherData.data && weatherData.data.precipitation ? ((weatherData.data.precipitation).reduce((sum: number, value: number) => sum + value, 0) / weatherData.data.precipitation.length).toFixed(2) : 'N/A';
-
-
   const [myActiveTab, mySetActiveTab] = useState('home'); // Track active tab
   const renderContent = () => {
     switch (myActiveTab) {
@@ -244,7 +241,7 @@ export default function TeacherLanding() {
                 <div>
                   <p className="text-gray-600">Temperature: {Math.round(weatherData.data.current.temperature2m)} °F</p>
                   <p className="text-gray-600">Wind Speed: {Math.round(weatherData.data.current.windSpeed10m)} MPH</p>
-                  <p className="text-gray-600">Rain Percentage: {averagePrecipitation}%</p>
+                  <p className="text-gray-600">Rain Percentage: {Math.round(weatherData.data.hourly.averagePrecipitation)}%</p>
                 
                 </div>
               ) : (

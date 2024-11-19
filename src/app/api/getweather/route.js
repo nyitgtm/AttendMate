@@ -4,12 +4,12 @@ import { fetchWeatherApi } from 'openmeteo';
 export async function POST(req) {
     try {
         // Parse the request body for location data (latitude and longitude)
-        const { latitude, longitude } = { latitude: 47.9253, longitude: -97.0328}; // Expecting latitude and longitude in the body
+        const { latitude, longitude } = { latitude: 40.813958, longitude: -73.5996}; // Expecting latitude and longitude in the body
 
         // Default to New York if no latitude and longitude provided
         const params = {
-            latitude: latitude || 40.7887,  // Default to New York latitude
-            longitude: longitude || -73.5996, // Default to New York longitude
+            latitude: latitude,  // Default to New York latitude
+            longitude: longitude, // Default to New York longitude
             current: ["temperature_2m", "weather_code", "wind_speed_10m"],
             hourly: "precipitation",
             temperature_unit: "fahrenheit",
@@ -40,16 +40,18 @@ export async function POST(req) {
             latitude: response.latitude(),
             longitude: response.longitude(),
             current: {
-                time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
-                temperature2m: current.variables(0) ? current.variables(0).value() : null,
-                weatherCode: current.variables(1) ? current.variables(1).value() : null,
-                windSpeed10m: current.variables(2) ? current.variables(2).value() : null,
+            time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
+            temperature2m: current.variables(0) ? current.variables(0).value() : null,
+            weatherCode: current.variables(1) ? current.variables(1).value() : null,
+            windSpeed10m: current.variables(2) ? current.variables(2).value() : null,
             },
             hourly: {
-                time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
-                    (t) => new Date((t + utcOffsetSeconds) * 1000)
-                ),
-                precipitation: hourly.variables(0) ? hourly.variables(0).valuesArray() : [],
+            time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
+                (t) => new Date((t + utcOffsetSeconds) * 1000)
+            ),
+            precipitation: hourly.variables(0) ? hourly.variables(0).valuesArray() : [],
+            averagePrecipitation: hourly.variables(0) ? 
+            Math.round(hourly.variables(0).valuesArray().reduce((sum, value) => sum + value, 0) / hourly.variables(0).valuesArray().length * 100) : 0,
             },
         };
 

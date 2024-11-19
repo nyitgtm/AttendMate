@@ -22,7 +22,13 @@ export default function TeacherLogin() {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      setMessage('Failed to parse response');
+      return;
+    }
 
     if (response.ok) {
       // Save teacher data to localStorage after successful login
