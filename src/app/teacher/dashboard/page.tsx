@@ -233,18 +233,16 @@ export default function TeacherLanding() {
 
             <div>
               <h3 className="text-lg font-bold mb-2">Weather</h3>
-              <p className="text-gray-600">{'Loading weather data...'}</p>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold mb-2">Weather</h3>
-              {weatherData ? (
-                <div>
+                {weatherData ? (
+                <div className="flex items-center space-x-4 h-24">
+                  <img src="/weathericon.png" alt="Weather Icon" className="w-20 h-20" />
+                  <div>
                   <p className="text-gray-600">Temperature: {Math.round(weatherData.data.current.temperature2m)} °F</p>
                   <p className="text-gray-600">Wind Speed: {Math.round(weatherData.data.current.windSpeed10m)} MPH</p>
                   <p className="text-gray-600">Rain Percentage: {Math.round(weatherData.data.hourly.averagePrecipitation)}%</p>
-                
+                  </div>
                 </div>
-              ) : (
+                ) : (
                 <p className="text-gray-600">Loading weather data...</p>
               )}
             </div>
