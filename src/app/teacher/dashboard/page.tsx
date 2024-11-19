@@ -169,7 +169,7 @@ export default function TeacherLanding() {
     // Fetch weather data initially and then every 60 seconds (1 minute)
     useEffect(() => {
       getWeather(); // Initial fetch
-      const intervalId = setInterval(getWeather, 60000); // Update every 60 seconds
+      const intervalId = setInterval(getWeather, 600000); // Update every 10 minutes
 
       // Cleanup the interval on component unmount
       return () => clearInterval(intervalId);
@@ -366,7 +366,7 @@ export default function TeacherLanding() {
                           student.studentId,
                           selectedClass!,
                           new Date(selectedDate),
-                          attendanceStatus,
+                          updatedStatus,
                           attendanceForDate.points
                           );
                             // setStudents(updatedStudents);
