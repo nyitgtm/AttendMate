@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import Link from 'next/link';
 import QRCode from "qrcode";
-import Calendar from 'react-calendar'; // Import the react-calendar component
-import 'react-calendar/dist/Calendar.css'; // Import the calendar styles
 
 type Student = {
     studentId: string;
