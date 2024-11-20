@@ -109,6 +109,12 @@ export default function TeacherLanding() {
   }, []);
 
   useEffect(() => {
+    if (!weatherData) {
+      getWeather();
+    }
+  }, [weatherData]);
+
+  useEffect(() => {
     const storedData = localStorage.getItem('teacherData');
 
     if (storedData) {
@@ -169,7 +175,7 @@ export default function TeacherLanding() {
     // Fetch weather data initially and then every 60 seconds (1 minute)
     useEffect(() => {
       getWeather(); // Initial fetch
-      const intervalId = setInterval(getWeather, 600000); // Update every 10 minutes
+      const intervalId = setInterval(getWeather, 60000); 
 
       // Cleanup the interval on component unmount
       return () => clearInterval(intervalId);
@@ -233,18 +239,25 @@ export default function TeacherLanding() {
 
             <div>
               <h3 className="text-lg font-bold mb-2">Weather</h3>
-                {weatherData ? (
-                <div className="flex items-center space-x-4 h-24">
-                  <img src="/weathericon.png" alt="Weather Icon" className="w-20 h-20" />
-                  <div>
-                  <p className="text-gray-600">Temperature: {Math.round(weatherData.data.current.temperature2m)} °F</p>
-                  <p className="text-gray-600">Wind Speed: {Math.round(weatherData.data.current.windSpeed10m)} MPH</p>
-                  <p className="text-gray-600">Rain Percentage: {Math.round(weatherData.data.hourly.averagePrecipitation)}%</p>
-                  </div>
+              {weatherData && weatherData.data && weatherData.data.current && weatherData.data.hourly ? (
+              <div className="flex items-center space-x-4 h-24">
+                <img src="/weathericon.png" alt="Weather Icon" className="w-20 h-20" />
+                <div>
+                <p className="text-gray-600">
+                  Temperature: {weatherData.data.current.temperature2m !== undefined ? Math.round(weatherData.data.current.temperature2m) : 'N/A'} °F
+                </p>
+                <p className="text-gray-600">
+                  Wind Speed: {weatherData.data.current.windSpeed10m !== undefined ? Math.round(weatherData.data.current.windSpeed10m) : 'N/A'} MPH
+                </p>
+                <p className="text-gray-600">
+                  Rain Percentage: {weatherData.data.hourly.averagePrecipitation !== undefined ? Math.round(weatherData.data.hourly.averagePrecipitation) : 'N/A'}%
+                </p>
                 </div>
-                ) : (
-                <p className="text-gray-600">Loading weather data...</p>
+              </div>
+              ) : (
+              <p className="text-gray-600">Loading weather data...</p>
               )}
+              {!weatherData && <p>Loading weather data...</p>}
             </div>
             
 
