@@ -26,11 +26,6 @@ type Student = {
 export default function Dashboard() {
     const [student, setStudent] = useState<Student | null>(null);
     const [qrCode, setQrCode] = useState<string | null>(null);
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [showClasses, setShowClasses] = useState(false);
-    const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false); // State to manage logout popup
-    const [isCalendarOpen, setIsCalendarOpen] = useState(false); // State to handle the calendar modal visibility
-    const [highlightedDates, setHighlightedDates] = useState<Date[]>([]); // State for highlighted attendance dates
 
     const router = useRouter();
 
@@ -42,10 +37,6 @@ export default function Dashboard() {
             setStudent(studentData);
             generateQRCode(studentData.studentId);
         }
-
-        // Generate random highlighted dates for the calendar (example)
-        const randomDates = generateRandomDates();
-        setHighlightedDates(randomDates);
     }, [router]);
 
     const generateQRCode = (studentId: string) => {
@@ -59,193 +50,270 @@ export default function Dashboard() {
         return () => clearInterval(intervalId);
     };
 
-    const toggleProfileSidebar = () => setIsProfileOpen(!isProfileOpen);
-    const toggleClassesView = () => setShowClasses(!showClasses);
-    const toggleCalendarView = () => setIsCalendarOpen(!isCalendarOpen);
-
-    const handleLogout = () => {
-        setShowLogoutConfirmation(true);
-    };
-
     const confirmLogout = (confirm: boolean) => {
         if (confirm) {
             localStorage.removeItem("studentData"); // Clear student data
             router.push("/"); // Redirect to landing page
         } else {
-            setShowLogoutConfirmation(false); // Hide the confirmation dialog
+            alert("Logout cancelled.");
         }
     };
 
-    // Function to generate random attendance dates for demonstration
-    const generateRandomDates = () => {
-        const randomDates: Date[] = [];
-        for (let i = 0; i < 10; i++) {
-            const randomDay = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28));
-            randomDates.push(randomDay);
-        }
-        return randomDates;
-    };
+    const [isWithinRadius, setIsWithinRadius] = useState(false);
 
-    if (!student) {
-        return <p>Loading student data...</p>;
-    }
+            useEffect(() => {
+                const intervalId = setInterval(() => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((position) => {
+                            const userLat = position.coords.latitude;
+                            const userLng = position.coords.longitude;
+                            const targetLat = 40.7376092; // Replace with the target latitude
+                            const targetLng = -73.7134038; // Replace with the target longitude
+                            const distance = getDistanceFromLatLonInMiles(userLat, userLng, targetLat, targetLng);
+                            if (distance <= 3) {
+                                setIsWithinRadius(true);
+                                clearInterval(intervalId);
+                            } else {
+                                setIsWithinRadius(false);
+                            }
+                        });
+                    }
+                }, 1000);
 
-    return (
-        <div className="flex flex-col min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="flex flex-col bg-green-600 text-white shadow-lg">
-                <div className='m-2'>
-                    <Link href="/">
-                        <Image
-                            src="/attendmatelogo.png"
-                            alt="AttendMate Logo"
-                            width={50}
-                            height={50}
-                            className="object-contain"
-                        />
-                    </Link>
-                </div>
-                <div className="flex flex-col text-center py-5">
-                    <h1 className="text-4xl font-bold">AttendMate Dashboard</h1>
-                    <p className="text-lg">Welcome, {student.studentName}!</p>
-                </div>
-            </header>
+                return () => clearInterval(intervalId);
+            }, []);
 
-            {/* Main Content */}
-            <main className="flex-grow p-6">
-                {/* QR Code Section */}
-                <section className="flex flex-col items-center mb-10">
-                    <h3 className="text-lg font-semibold text-gray-800">Your QR Code (updates every second):</h3>
-                    {qrCode ? (
-                        <img src={qrCode} alt="Student QR Code" className="border-2 border-gray-300 p-2 rounded w-40 h-40" />
-                    ) : (
-                        <p>Loading QR code...</p>
-                    )}
-                </section>
+            const deg2rad = (deg: number) => {
+                return deg * (Math.PI / 180);
+            };
 
-                {/* Conditional Classes Section */}
-                {showClasses && (
-                    <section className="space-y-6">
-                        <h2 className="text-2xl font-semibold text-gray-800">Your Attendance and Points</h2>
-                        {student.classes.map((classItem, index) => (
-                            <div key={index} className="p-4 border border-gray-200 rounded-lg shadow-sm mb-4">
-                                <h3 className="text-xl font-medium text-gray-800">{classItem.classId}</h3>
-                                <p className="text-gray-700"><strong>Points:</strong> {classItem.classPoints}</p>
-                                <div className="mt-2 space-y-2">
-                                    <strong className="text-gray-700">Attendance:</strong>
-                                    {classItem.attendance.map((entry, idx) => (
-                                        <p key={idx} className="text-gray-600">
-                                            {entry.status} on {new Date(entry.scheduledTime).toLocaleString()}
-                                        </p>
-                                    ))}
+            const getDistanceFromLatLonInMiles = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+                const R = 3958.8; // Radius of the Earth in miles
+                const dLat = deg2rad(lat2 - lat1);
+                const dLon = deg2rad(lon2 - lon1);
+                const a =
+                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const distance = R * c;
+                return distance;
+            };
+
+
+            const [selectedClass, setSelectedClass] = useState<string | null>(null);
+            const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+            const filteredAttendance = student?.classes
+            .flatMap((cls) =>
+                cls.attendance.map((att) => ({
+                ...att,
+                classId: cls.classId,
+                classPoints: cls.classPoints,
+                }))
+            )
+            .filter((att) => {
+                const matchesClass = selectedClass ? att.classId === selectedClass : true;
+                const matchesDate = selectedDate ? new Date(att.scheduledTime).toLocaleDateString('en-US', { timeZone: 'UTC' }) === new Date(selectedDate).toLocaleDateString('en-US', { timeZone: 'UTC' }) : true;
+                return matchesClass && matchesDate;
+            })
+            .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
+
+            
+
+
+const [myActiveTab, mySetActiveTab] = useState('home'); // Track active tab
+
+if (!student) {
+    return <p>Loading student data...</p>;
+}
+const renderContent = () => {
+    switch (myActiveTab) {
+        case 'home':
+            return (
+                <div className="bg-white-600">
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className="flex flex-col items-center space-y-2">
+                            <h1 className="text-5xl font-semibold">Welcome {student.studentName}!</h1>
+                            <img src={'/attendmatelogoblack.png'} alt="Profile" className="w-24 h-24" />
+                            <h2 className="text-2xl font-semibold">{student.studentName}</h2>
+                            <p className="text-gray-500">{student.studentEmail}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <p className="text-lg font-semibold">Total Points: {student.classes.reduce((acc, cur) => acc + cur.classPoints, 0)}</p>
+                            <p className="text-lg font-semibold">Total Classes: {student.classes.length}</p>
+                        </div>
+                        <div className="flex flex-col items-center space-y-2">
+                            {/* <h3 className="text-lg font-semibold">Attendance</h3> */}
+                            <div className="flex items-center space-x-2">
+                                <div className="flex flex-col items-start space-y-2">
+                                    <p className="text-lg font-semibold">Upcoming Classes <br />...</p>
+                                    {student.classes.map((cls) => cls.attendance.map((att) => {
+                                        const scheduledTime = new Date(att.scheduledTime);
+                                        return scheduledTime >= new Date() ? (
+                                            <div className="flex items-center space-x-2" key={att.scheduledTime}>
+                                                <p>{scheduledTime.toDateString()}</p>
+                                                <p>{att.status}</p>
+                                            </div>
+                                        ) : null;
+                                    }))}
                                 </div>
                             </div>
-                        ))}
-                    </section>
-                )}
-            </main>
-
-            {/* Profile Sidebar */}
-            {isProfileOpen && (
-                <aside className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg p-6 border-l border-gray-300">
-                    <button onClick={toggleProfileSidebar} className="absolute top-4 right-4 text-gray-500 font-bold">
-                        X
-                    </button>
-                    <div className="flex justify-center mb-6">
-                        <img 
-                            src={student.studentPicture || "/default-profile.png"} 
-                            alt="Profile Picture" 
-                            className="w-24 h-24 rounded-full border-2 border-gray-300"
-                        />
-                    </div>
-                    <h2 className="text-2xl font-semibold mb-4 text-black">Profile</h2>
-                    <p className="text-black mb-2"><strong>Name:</strong> {student.studentName}</p>
-                    <p className="text-black mb-2"><strong>Email:</strong> {student.studentEmail}</p>
-                    <p className="text-black mb-4"><strong>ID:</strong> {student.studentId}</p>
-                    <button 
-                        onClick={handleLogout}
-                        className="mt-auto w-full py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
-                    >
-                        Logout
-                    </button>
-                </aside>
-            )}
-
-            {/* Logout Confirmation Modal */}
-            {showLogoutConfirmation && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-                        <p className="text-black font-semibold mb-4">Are you sure you want to logout?</p>
-                        <div className="flex justify-around">
-                            <button
-                                onClick={() => confirmLogout(true)}
-                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                            >
-                                Yes
-                            </button>
-                            <button
-                                onClick={() => confirmLogout(false)}
-                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
-                            >
-                                No
-                            </button>
                         </div>
                     </div>
                 </div>
-            )}
-
-            {/* Calendar Modal */}
-            {isCalendarOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center text-black">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <button
-                            onClick={() => setIsCalendarOpen(false)}
-                            className="absolute top-4 right-4 text-black-500 font-bold"
-                        >
-                            X
-                        </button>
-                        <h3 className="text-center text-xl font-semibold mb-4">Attendance Calendar</h3>
-                        <Calendar
-                            value={new Date()}
-                            tileClassName={({ date }) => 
-                                highlightedDates.some(d => 
-                                    d.getDate() === date.getDate() && 
-                                    d.getMonth() === date.getMonth() && 
-                                    d.getFullYear() === date.getFullYear()) ? 'highlighted' : ''
-                            }
-                        />
+            );
+        case 'scan':
+            return (
+                <div>
+                    {isWithinRadius ? (
+                        <div className="flex flex-col items-center space-y-4">
+                            <div className="flex flex-col items-center space-y-2">
+                                <h1 className="text-5xl font-semibold">Scan QR Code</h1>
+                            </div>
+                            <div className="flex flex-col items-center space-y-2">
+                                <img src={qrCode || ''} alt="QR Code" className="w-60 h-60" style={{ userSelect: 'none', pointerEvents: 'none' }} />
+                                <div className="flex flex-col items-center space-x-2">
+                                    <h2 className="text-2xl font-semibold">{student.studentName}</h2>
+                                    <div className="font-semibold">{new Date().toLocaleString()}</div>
+                                    <p className="text-lg font-semibold">Total Points: {student.classes.reduce((acc, cur) => acc + cur.classPoints, 0)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center space-y-4">
+                            <div className="flex flex-col items-center space-y-2">
+                                <h1 className="text-5xl font-semibold">Location Required</h1>
+                                <p className="text-lg font-semibold">You are not near NYIT yet to receive the QR code. Please come within 3 miles.</p>
+                                
+                                <p className="text-lg font-semibold text-center">Please avoid texting while driving. <br /> You can send an email with your location below.</p>
+                                <button className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition duration-300">Send Email</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        case 'history':
+            return (
+            <div className="overflow-x-auto">
+                <div className="flex flex-col items-center space-y-4">
+                <h2 className="text-2xl font-semibold">Filter Attendance</h2>
+                <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
+                    <div className="flex flex-col items-start space-y-2">
+                    <label htmlFor="classSelect" className="text-lg font-semibold">Select Class</label>
+                    <select
+                        id="classSelect"
+                        className="p-2 border rounded-md"
+                        onChange={(e) => setSelectedClass(e.target.value)}
+                    >
+                        <option value="">All Classes</option>
+                        {student.classes.map((cls) => (
+                        <option key={cls.classId} value={cls.classId}>
+                            {cls.classId}
+                        </option>
+                        ))}
+                    </select>
+                    </div>
+                    <div className="flex flex-col items-start space-y-2">
+                    <label htmlFor="dateSelect" className="text-lg font-semibold">Select Date</label>
+                    <input
+                        type="date"
+                        id="dateSelect"
+                        className="p-2 border rounded-md"
+                        max={new Date().toISOString().split("T")[0]} // Prevent future dates
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                    />
                     </div>
                 </div>
-            )}
+                </div>
 
-            {/* Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-4">
-                <Link href="/" className="text-green-600 font-semibold py-2 px-4 border-2 border-gray-300 rounded-md hover:bg-green-100 transition">
-                    Home
-                </Link>
-                <button onClick={toggleProfileSidebar} className="text-green-600 font-semibold py-2 px-4 border-2 border-gray-300 rounded-md hover:bg-green-100 transition">
-                    Profile
-                </button>
-                <button onClick={toggleClassesView} className="text-green-600 font-semibold py-2 px-4 border-2 border-gray-300 rounded-md hover:bg-green-100 transition">
-                    Classes
-                </button>
-                <button onClick={toggleCalendarView} className="text-green-600 font-semibold py-2 px-4 border-2 border-gray-300 rounded-md hover:bg-green-100 transition">
-                    Attendance
-                </button>
-            </nav>
+                <table className="min-w-full bg-white">
+                <thead>
+                    <tr>
+                    <th className="py-2 px-4 border-b text-left">Date</th>
+                    <th className="py-2 px-4 border-b text-left">Class</th>
+                    <th className="py-2 px-4 border-b text-left">Status</th>
+                    <th className="py-2 px-4 border-b text-left">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredAttendance?.map((att, index) => (
+                    <tr
+                        key={`${att.scheduledTime}-${att.classId}`}
+                        className={`${
+                        index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'
+                        } hover:bg-gray-300`}
+                    >
+                        <td className="py-2 px-4 border-b">{new Date(att.scheduledTime).toDateString()}</td>
+                        <td className="py-2 px-4 border-b">{att.classId}</td>
+                        <td className="py-2 px-4 border-b">{att.status.charAt(0).toUpperCase() + att.status.slice(1)}</td>
+                        <td className="py-2 px-4 border-b">{att.classPoints}</td>
+                    </tr>
+                    ))}
+                </tbody>
+                </table>
+            </div>
+            );
+        case 'leaderboard':
+            return (
+                <div>USE API FROM TEACHER SIDE!!!!! </div>
+            );
+        default:
+            return <div></div>;
+    }
+};
 
-            <style jsx>{`
-                .react-calendar__tile.highlighted {
-                    background-color: #4CAF50;
-                    color: white;
-                    border-radius: 50%;
-                    font-weight: bold;
-                }
+    return (
+    <div className="min-h-screen bg-white relative text-black">
+        {/* Header */}
+        <header className="flex items-center justify-between bg-green-600 text-white p-4">
+            <div className="flex items-center space-x-2">
+                <Image
+                    src="/attendmatelogo.png"
+                    alt="Logo"
+                    width={40}
+                    height={40}
+                />
+                <h1 className="text-xl font-semibold">Student Dashboard - {student.studentName.split(' ')[0]} ({student.studentId})</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+                <div className="font-semibold">{new Date().toLocaleString()}</div>
+                <button onClick={() => confirmLogout(true)} className="bg-red-500 text-white px-4 py-2 rounded-md">Logout</button>
+            </div>
+        </header>
 
-                .react-calendar__tile {
-                    color: black;
-                }
-            `}</style>
+        {/* Navigation */}
+        <div className="flex flex-wrap items-center space-x-2 w-full p-5">
+            <button
+            onClick={() => mySetActiveTab('home')}
+            className={`text-sm md:text-lg font-semibold py-2 px-2 md:px-4 rounded-md flex-1 h-12 ${myActiveTab === 'home' ? 'bg-green-600 text-white' : 'bg-gray-200 text-black'} hover:bg-gray-700 hover:text-white shadow-md`}
+            >
+            Home
+            </button>
+            <div className="h-8 border-l-2 border-gray-500"></div>
+            <button
+            onClick={() => mySetActiveTab('scan')}
+            className={`text-sm md:text-lg font-semibold py-2 px-2 md:px-4 rounded-md flex-1 h-12 ${myActiveTab === 'scan' ? 'bg-green-600 text-white' : 'bg-gray-200 text-black'} hover:bg-gray-700 hover:text-white shadow-md`}
+            >
+            Scan
+            </button>
+            <div className="h-8 border-l-2 border-gray-500"></div>
+            <button
+            onClick={() => mySetActiveTab('history')}
+            className={`text-sm md:text-lg font-semibold py-2 px-2 md:px-4 rounded-md flex-1 h-12 ${myActiveTab === 'history' ? 'bg-green-600 text-white' : 'bg-gray-200 text-black'} hover:bg-gray-700 hover:text-white shadow-md`}
+            >
+            History
+            </button>
+            <div className="h-8 border-l-2 border-gray-500"></div>
+            <button
+            onClick={() => mySetActiveTab('leaderboard')}
+            className={`text-sm md:text-lg font-semibold py-2 px-2 md:px-4 rounded-md flex-1 h-12 ${myActiveTab === 'leaderboard' ? 'bg-green-600 text-white' : 'bg-gray-200 text-black'} hover:bg-gray-700 hover:text-white shadow-md`}
+            >
+            Leaderboard
+            </button>
         </div>
+        
+        <main className="flex-grow p-6">{renderContent()}</main>
+    </div>
     );
 }
