@@ -10,13 +10,14 @@ type Student = {
     studentId: string;
     studentName: string;
     studentEmail: string;
-    studentPicture: string; // Add a field for profile picture URL
     classes: {
         classId: string;
         classPoints: number;
         attendance: {
-            status: string;
             scheduledTime: string;
+            checkInTime: string;
+            status: string;
+            points: number;
         }[];
     }[];
 };
@@ -117,10 +118,27 @@ export default function Dashboard() {
             })
             .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
 
-            
-
 
 const [myActiveTab, mySetActiveTab] = useState('home'); // Track active tab
+
+
+const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+const [studentsPoints, setStudentsPoints] = useState<{ studentName: string; points: number }[]>([]);
+
+useEffect(() => {
+    if (selectedCourse) {
+        const fetchStudentsPoints = async () => {
+            const res = await fetch('/api/getstudentsbycoursename', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ courseName: selectedCourse }),
+            });
+            const data = await res.json();
+            setStudentsPoints(data);
+        };
+        fetchStudentsPoints();
+    }
+}, [selectedCourse]);
 
 if (!student) {
     return <p>Loading student data...</p>;
@@ -133,13 +151,22 @@ const renderContent = () => {
                     <div className="flex flex-col items-center space-y-4">
                         <div className="flex flex-col items-center space-y-2">
                             <h1 className="text-5xl font-semibold">Welcome {student.studentName}!</h1>
-                            <img src={'/attendmatelogoblack.png'} alt="Profile" className="w-24 h-24" />
+                            <Image src={'/attendmatelogoblack.png'} alt="Profile" width={96} height={96} className="w-24 h-24" />
                             <h2 className="text-2xl font-semibold">{student.studentName}</h2>
                             <p className="text-gray-500">{student.studentEmail}</p>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <p className="text-lg font-semibold">Total Points: {student.classes.reduce((acc, cur) => acc + cur.classPoints, 0)}</p>
+                            <p className="text-lg font-semibold">Life Time Points: {student.classes.reduce((acc, cur) => acc + cur.classPoints, 0)}</p>
                             <p className="text-lg font-semibold">Total Classes: {student.classes.length}</p>
+                        </div>
+                        <div className="flex flex-col items-start space-y-2">
+                            <h3 className="text-lg font-semibold">Class Points</h3>
+                            {student.classes.map((cls) => (
+                                <div key={cls.classId} className="flex items-center space-x-2">
+                                    <p className="text-lg">{cls.classId}:</p>
+                                    <p className="text-lg font-semibold">{cls.classPoints} points</p>
+                                </div>
+                            ))}
                         </div>
                         <div className="flex flex-col items-center space-y-2">
                             {/* <h3 className="text-lg font-semibold">Attendance</h3> */}
@@ -229,6 +256,7 @@ const renderContent = () => {
                 <thead>
                     <tr>
                     <th className="py-2 px-4 border-b text-left">Date</th>
+                    <th className="py-2 px-4 border-b text-left">Check-In Time</th>
                     <th className="py-2 px-4 border-b text-left">Class</th>
                     <th className="py-2 px-4 border-b text-left">Status</th>
                     <th className="py-2 px-4 border-b text-left">Points</th>
@@ -243,9 +271,10 @@ const renderContent = () => {
                         } hover:bg-gray-300`}
                     >
                         <td className="py-2 px-4 border-b">{new Date(att.scheduledTime).toDateString()}</td>
+                        <td className="py-2 px-4 border-b">{new Date(att.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                         <td className="py-2 px-4 border-b">{att.classId}</td>
                         <td className="py-2 px-4 border-b">{att.status.charAt(0).toUpperCase() + att.status.slice(1)}</td>
-                        <td className="py-2 px-4 border-b">{att.classPoints}</td>
+                        <td className="py-2 px-4 border-b">{att.points}</td>
                     </tr>
                     ))}
                 </tbody>
@@ -254,7 +283,58 @@ const renderContent = () => {
             );
         case 'leaderboard':
             return (
-                <div>USE API FROM TEACHER SIDE!!!!! </div>
+                <div className="flex flex-col items-center space-y-4">
+                    <h2 className="text-2xl font-semibold">Leaderboard</h2>
+                    <div className="flex flex-col items-start space-y-2">
+                        <label htmlFor="courseSelect" className="text-lg font-semibold">Select Course</label>
+                        <select
+                            id="courseSelect"
+                            className="p-2 border rounded-md"
+                            onChange={(e) => setSelectedCourse(e.target.value)}
+                        >
+                            {!selectedCourse && <option value="">Select a course</option>}
+                            {student.classes.map((cls) => (
+                                <option key={cls.classId} value={cls.classId}>
+                                    {cls.classId}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    {selectedCourse && (
+                        <p className="text-lg font-semibold">Displaying leaderboard for class {selectedCourse}</p>
+                    )}
+                    {studentsPoints.length > 0 && (
+                        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+                            <thead className="bg-green-600 text-white">
+                                <tr>
+                                    <th className="py-2 px-4 border-b text-left">Student Name</th>
+                                    <th className="py-2 px-4 border-b text-left">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {studentsPoints
+                                    .sort((a, b) => b.points - a.points)
+                                    .map((studentPoint, index) => (
+                                    <tr
+                                        key={studentPoint.studentName}
+                                        className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} hover:bg-gray-300 h-12`}
+                                    >
+                                        <td className={`py-2 px-4 border-b flex items-center h-12${index === 0 ? 'text-yellow-500 h-16 animate-pulse hover:animate-bounce' : ''}`}>
+                                            {index === 0 && (
+                                                <>
+                                                    <span className="text-yellow-500 font-bold">#1</span>
+                                                    <Image src="/trophysymbol.svg" alt="Trophy" width={24} height={24} className="mr-2" />
+                                                </>
+                                            )}
+                                            {studentPoint.studentName} {studentPoint.studentName === student.studentName ? "(You)" : ""}
+                                        </td>
+                                        <td className="py-2 px-4 border-b">{studentPoint.points}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             );
         default:
             return <div></div>;
