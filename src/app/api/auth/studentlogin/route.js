@@ -1,33 +1,68 @@
-// src/app/api/auth/login/route.js (if you're using Next.js 13 with the app directory)
-// OR
-// pages/api/auth/login.js (for Next.js projects with the pages directory)
-
 import { MongoClient } from 'mongodb';
+import bcrypt from 'bcryptjs'; // Import bcryptjs for password hashing
 
 export async function POST(req) {
     const { email, password } = await req.json();
 
     const client = await MongoClient.connect(process.env.MONGODB_URI);
-    const db = client.db('students');
-    const collection = db.collection('logins');
+    const db = client.db('attendmate');
+    const collection = db.collection('students');
 
-    const user = await collection.findOne({ email });
+    // Query using `studentEmail`
+    const user = await collection.findOne({ studentEmail: email });
 
-    if (!user || user.password !== password) {
+    if (!user) {
         client.close();
         return new Response(JSON.stringify({ message: 'Invalid email or password' }), {
             status: 401,
         });
     }
 
+    // Compare the hashed password stored in the database with the provided password
+    const isMatch = password === user.password; // Temp | haven't made the change to bcrypt yet
+
+    if (!isMatch) {
+        client.close();
+        return new Response(JSON.stringify({ message: 'Invalid email or password' }), {
+            status: 401,
+        });
+    }
+
+    // Convert MongoDB's native types to normal types (e.g., `points` from `$numberInt`)
+    const points = user.points.$numberInt ? parseInt(user.points.$numberInt) : user.points;
+    const classes = user.classes.map((classData) => ({
+        classId: classData.classId,
+        classPoints: classData.classPoints.$numberInt ? parseInt(classData.classPoints.$numberInt) : classData.classPoints,
+        attendance: classData.attendance.map((attendanceRecord) => {
+            // Correctly format the scheduledTime and checkInTime if they are in MongoDB's $date format
+            const scheduledTime = attendanceRecord.scheduledTime?.$date
+                ? new Date(attendanceRecord.scheduledTime.$date).toISOString()
+                : new Date(attendanceRecord.scheduledTime).toISOString();
+
+            const checkInTime = attendanceRecord.checkInTime?.$date
+                ? new Date(attendanceRecord.checkInTime.$date).toISOString()
+                : new Date(attendanceRecord.checkInTime).toISOString();
+
+            return {
+                ...attendanceRecord,
+                scheduledTime,
+                checkInTime,
+                points: attendanceRecord.points.$numberInt ? parseInt(attendanceRecord.points.$numberInt) : attendanceRecord.points
+            };
+        }),
+    }));
+
+    // Successful login response with user data
     client.close();
-    return new Response(JSON.stringify({ message: 'Login successful!' }), {
+    return new Response(JSON.stringify({
+        message: 'Login successful!',
+        studentId: user.studentId,
+        studentName: user.studentName,
+        email: user.studentEmail,
+        macAddress: user.macAddress,
+        points,
+        classes
+    }), {
         status: 200,
     });
 }
-
-// In older versions of Next.js (or in the pages directory), use:
-// export default async function handler(req, res) {
-//     if (req.method !== 'POST') return res.status(405).end();
-//     // The rest of the code above goes here, using res.json({}) instead of `new Response(...)`.
-// }

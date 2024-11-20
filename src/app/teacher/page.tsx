@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function TeacherLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,12 +22,26 @@ export default function TeacherLogin() {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
-    if (data.success) {
-      // Handle successful login (e.g., redirect)
-      console.log('Login successful');
+    let data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      setMessage('Failed to parse response');
+      return;
+    }
+
+    if (response.ok) {
+      // Save teacher data to localStorage after successful login
+      localStorage.setItem("teacherData", JSON.stringify({
+        teacherId: data.teacherId,
+        teacherName: data.teacherName,
+        classes: data.classes,
+      }));
+
+      // Redirect to dashboard after saving data
+      router.push("/teacher/dashboard");
     } else {
-      setError(data.message);
+      setMessage(data.message); // Handle errors
     }
   };
 
@@ -43,12 +59,11 @@ export default function TeacherLogin() {
             />
           </Link>
         </div>
-        
+
         <div className="flex flex-col text-center py-5">
           <h1 className="text-4xl font-bold">AttendMate <br /> Teacher Login </h1>
           <p className="text-lg text-center">
-            Log in to manage your classes 
-            <br />and attendance records.
+            Log in to manage your classes <br /> and attendance records.
           </p>
         </div>
       </header>
@@ -57,18 +72,16 @@ export default function TeacherLogin() {
         <div className="max-w-md w-full bg-white p-8 shadow-md rounded-lg">
           <h2 className="text-2xl font-semibold text-center text-gray-800">Teacher Login</h2>
 
-          {error && <p className="text-red-500 text-center mt-4">{error}</p>}
-
           <form onSubmit={handleSubmit} className="mt-6 space-y-6">
             <div>
               <label htmlFor="teacherEmail" className="block text-sm font-medium text-gray-700">Email Address</label>
               <input
                 type="email"
                 id="teacherEmail"
-                placeholder="teacher@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full mt-2 p-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
             <div>
@@ -76,10 +89,10 @@ export default function TeacherLogin() {
               <input
                 type="password"
                 id="teacherPassword"
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full mt-2 p-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
 
@@ -90,6 +103,7 @@ export default function TeacherLogin() {
               Login as Teacher
             </button>
           </form>
+          {message && <p className="mt-4 text-center text-red-600">{message}</p>}
         </div>
       </main>
     </div>
