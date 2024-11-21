@@ -44,7 +44,6 @@ export default function TeacherLanding() {
     studentPicture: string; // Add a field for profile picture URL
     classes: {
         classId: string;
-        classPoints: number;
         attendance: {
             scheduledTime: string;
             checkInTime: string;

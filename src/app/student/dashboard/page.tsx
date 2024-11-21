@@ -12,7 +12,6 @@ type Student = {
     studentEmail: string;
     classes: {
         classId: string;
-        classPoints: number;
         attendance: {
             scheduledTime: string;
             checkInTime: string;
@@ -108,7 +107,7 @@ export default function Dashboard() {
                 cls.attendance.map((att) => ({
                 ...att,
                 classId: cls.classId,
-                classPoints: cls.classPoints,
+                classPoints: cls.attendance.reduce((acc, att) => acc + att.points, 0),
                 }))
             )
             .filter((att) => {
@@ -123,7 +122,7 @@ const [myActiveTab, mySetActiveTab] = useState('home'); // Track active tab
 
 
 const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-const [studentsPoints, setStudentsPoints] = useState<{ studentName: string; points: number }[]>([]);
+const [studentsPoints, setStudentsPoints] = useState<Student[]>([]);
 
 useEffect(() => {
     if (selectedCourse) {
@@ -210,7 +209,9 @@ const renderContent = () => {
                             {!weatherData && <p>Loading weather data...</p>}
                         </div>
                         <div className="flex items-center space-x-2">
-                            <p className="text-lg font-semibold">Life Time Points: {student.classes.reduce((acc, cur) => acc + cur.classPoints, 0)}</p>
+                            <p className="text-lg font-semibold">
+                                Total Points: {student.classes.reduce((acc, cls) => acc + cls.attendance.reduce((attAcc, att) => attAcc + att.points, 0), 0)}
+                            </p>
                             <p className="text-lg font-semibold">Total Classes: {student.classes.length}</p>
                         </div>
                         <div className="flex flex-col items-start space-y-2">
@@ -218,7 +219,9 @@ const renderContent = () => {
                             {student.classes.map((cls) => (
                                 <div key={cls.classId} className="flex items-center space-x-2">
                                     <p className="text-lg">{cls.classId}:</p>
-                                    <p className="text-lg font-semibold">{cls.classPoints} points</p>
+                                <p className="text-lg font-semibold">
+                                    Points: {cls.attendance.reduce((acc, att) => acc + att.points, 0)}
+                                </p>
                                 </div>
                             ))}
                         </div>
@@ -231,8 +234,7 @@ const renderContent = () => {
                                         const scheduledTime = new Date(att.scheduledTime);
                                         return scheduledTime >= new Date() ? (
                                             <div className="flex items-center space-x-2" key={att.scheduledTime}>
-                                                <p>{scheduledTime.toDateString()}</p>
-                                                <p>{att.status}</p>
+                                                <p>{scheduledTime.toDateString()} {scheduledTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
                                             </div>
                                         ) : null;
                                     }))}
@@ -255,7 +257,9 @@ const renderContent = () => {
                                 <div className="flex flex-col items-center space-x-2">
                                     <h2 className="text-2xl font-semibold">{student.studentName}</h2>
                                     <div className="font-semibold">{new Date().toLocaleString()}</div>
-                                    <p className="text-lg font-semibold">Total Points: {student.classes.reduce((acc, cur) => acc + cur.classPoints, 0)}</p>
+                                <p className="text-lg font-semibold">
+                                    Total Points: {student.classes.reduce((acc, cls) => acc + cls.attendance.reduce((attAcc, att) => attAcc + att.points, 0), 0)}
+                                </p>
                                 </div>
                             </div>
                         </div>
@@ -367,13 +371,17 @@ const renderContent = () => {
                             </thead>
                             <tbody>
                                 {studentsPoints
-                                    .sort((a, b) => b.points - a.points)
+                                    .map((studentPoint) => ({
+                                        ...studentPoint,
+                                        totalPoints: (studentPoint.classes.find((cls) => cls.classId === selectedCourse)?.attendance.reduce((acc, att) => acc + att.points, 0) ?? 0)
+                                    }))
+                                    .sort((a, b) => b.totalPoints - a.totalPoints)
                                     .map((studentPoint, index) => (
                                     <tr
                                         key={studentPoint.studentName}
                                         className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} hover:bg-gray-300 h-12`}
                                     >
-                                        <td className={`py-2 px-4 border-b flex items-center h-12${index === 0 ? 'text-yellow-500 h-16 animate-pulse hover:animate-bounce' : ''}`}>
+                                        <td className={`py-2 px-4 border-b flex items-center h-12${index === 0 ? 'text-yellow-500 h-16 animate-pulse' : ''}`}>
                                             {index === 0 && (
                                                 <>
                                                     <span className="text-yellow-500 font-bold">#1</span>
@@ -382,7 +390,7 @@ const renderContent = () => {
                                             )}
                                             {studentPoint.studentName} {studentPoint.studentName === student.studentName ? "(You)" : ""}
                                         </td>
-                                        <td className="py-2 px-4 border-b">{studentPoint.points}</td>
+                                        <td className="py-2 px-4 border-b">{studentPoint.totalPoints}</td>
                                     </tr>
                                 ))}
                             </tbody>

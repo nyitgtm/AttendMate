@@ -20,7 +20,12 @@ export default function StudentLogin() {
             body: JSON.stringify({ email, password }),
         });
 
-        const data = await res.json();
+        let data;
+        try {
+            data = await res.json();
+        } catch (error) {
+            data = { message: 'Invalid response from server' };
+        }
 
         if (res.ok) {
             // Save student data to localStorage after successful login
