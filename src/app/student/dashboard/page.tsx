@@ -140,6 +140,38 @@ useEffect(() => {
     }
 }, [selectedCourse]);
 
+const [weatherData, setWeatherData] = useState<any | null>(null);
+const getWeather = async () => {
+    try {
+        const res = await fetch('/api/getweather', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+  
+        if (!res.ok) {
+            const errorData = await res.json();
+            console.error('Error Getting Weather:', errorData.message);
+            return { success: false, message: errorData.message };
+        }
+  
+        const data = await res.json();
+        setWeatherData(data);
+        return { success: true, message: data.message };
+    } catch (error) {
+        console.error('Error in weather function:', error);
+        return { success: false, message: 'An error occurred while getting weather' };
+    }
+  };
+
+  useEffect(() => {
+    if (!weatherData) {
+      getWeather();
+    }
+  }, [weatherData]);
+
+
+
+
 if (!student) {
     return <p>Loading student data...</p>;
 }
@@ -154,6 +186,28 @@ const renderContent = () => {
                             <Image src={'/attendmatelogoblack.png'} alt="Profile" width={96} height={96} className="w-24 h-24" />
                             <h2 className="text-2xl font-semibold">{student.studentName}</h2>
                             <p className="text-gray-500">{student.studentEmail}</p>
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold mb-2">Weather</h3>
+                            {weatherData && weatherData.data && weatherData.data.current && weatherData.data.hourly ? (
+                            <div className="flex items-center space-x-4 h-24">
+                                <img src="/weathericon.png" alt="Weather Icon" className="w-20 h-20" />
+                                <div>
+                                <p className="text-gray-600">
+                                Temperature: {weatherData.data.current.temperature2m !== undefined ? Math.round(weatherData.data.current.temperature2m) : 'N/A'} °F
+                                </p>
+                                <p className="text-gray-600">
+                                Wind Speed: {weatherData.data.current.windSpeed10m !== undefined ? Math.round(weatherData.data.current.windSpeed10m) : 'N/A'} MPH
+                                </p>
+                                <p className="text-gray-600">
+                                Rain Percentage: {weatherData.data.hourly.averagePrecipitation !== undefined ? Math.round(weatherData.data.hourly.averagePrecipitation) : 'N/A'}%
+                                </p>
+                                </div>
+                            </div>
+                            ) : (
+                            <p className="text-gray-600">Loading weather data...</p>
+                            )}
+                            {!weatherData && <p>Loading weather data...</p>}
                         </div>
                         <div className="flex items-center space-x-2">
                             <p className="text-lg font-semibold">Life Time Points: {student.classes.reduce((acc, cur) => acc + cur.classPoints, 0)}</p>
