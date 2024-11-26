@@ -184,6 +184,37 @@ export default function TeacherLanding() {
   const renderContent = () => {
     switch (myActiveTab) {
       case 'home':
+        async function handleDeleteClass(selectedClass: string) {
+          try {
+            const res = await fetch('/api/deletecourse', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ teacherId: teacher!.teacherId, classId: selectedClass })
+            });
+
+            if (!res.ok) {
+              const errorData = await res.json();
+              console.error('Error deleting course:', errorData.message);
+              return { success: false, message: errorData.message };
+            }
+
+            const data = await res.json();
+            setTeacher((prevTeacher) => {
+              if (prevTeacher) {
+          return {
+            ...prevTeacher,
+            classes: prevTeacher.classes.filter((cls) => cls.classId !== selectedClass)
+          };
+              }
+              return prevTeacher;
+            });
+            setSelectedClass(null);
+            return { success: true, message: data.message };
+          } catch (error) {
+            console.error('Error in handleDeleteClass function:', error);
+            return { success: false, message: 'An error occurred while deleting the course' };
+          }
+        }
         return (
             <div>
             {teacher ? (
@@ -194,15 +225,27 @@ export default function TeacherLanding() {
 
             <h2 className="text-2xl font-black text-center mb-6 text-red-500">
                 {selectedClass ? (
-                new Date(selectedDate + 'T00:00:00') < new Date(new Date().toLocaleDateString('en-CA') + 'T00:00:00') ? (
-                  <span className="text-yellow-500">
-                  Viewing Class {selectedClass} on {new Date(selectedDate + 'T00:00:00').toLocaleDateString()}
-                  </span>
-                ) : (
-                  <span className="animate-pulse text-green-500">
-                  Currently Managing Class {selectedClass}...
-                  </span>
-                )
+                  new Date(selectedDate + 'T00:00:00') < new Date(new Date().toLocaleDateString('en-CA') + 'T00:00:00') ? (
+                    <span className="text-yellow-500">
+                    Viewing Class {selectedClass} on {new Date(selectedDate + 'T00:00:00').toLocaleDateString()}
+                    </span>
+                  ) : (
+                    <>
+                        <span className="animate-pulse text-green-500">
+                        Currently Managing Class {selectedClass}...
+                        </span>
+                        <br />
+                        <span className="text-lg font-semibold text-black">
+                        Invite Code: {selectedClass.split('').map((char) => {
+                          const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                          const index = alphabet.indexOf(char.toUpperCase());
+                          if (index === -1) return char;
+                          return alphabet[(index + 7) % alphabet.length];
+                        }).join('')}
+                        </span>
+                        <br />
+                    </>
+                  )
                 ) : (
                 <>
                   What would you like to do today?
@@ -210,6 +253,21 @@ export default function TeacherLanding() {
                   <span className="animate-pulse">Select a class</span>
                 </>
                 )}
+            {selectedClass && (
+              <button
+              onClick={() => {
+                if (selectedClass) {
+                const confirmDelete = window.confirm(`Are you sure you want to delete the class ${selectedClass}?`);
+                if (confirmDelete) {
+                  handleDeleteClass(selectedClass);
+                }
+                }
+              }}
+              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200"
+              >
+              Delete Class
+              </button>
+            )}
             </h2>
 
             <div className="mt-6 flex justify-center space-x-4">
@@ -437,7 +495,7 @@ export default function TeacherLanding() {
             </div>
           </div>;
       case 'scan':
-        return <QrScanner />;
+        return <QrScanner classId={selectedClass} />;
       case 'reports':
         return ( 
         <div>
@@ -495,7 +553,7 @@ export default function TeacherLanding() {
                       <td className="py-2 px-4 border-b text-left">{student.studentName}</td>
                       <td className="py-2 px-4 border-b text-left">{student.studentId}</td>
                       <td className="py-2 px-4 border-b text-right">
-                        {new Date(attendanceForDate.checkInTime).toLocaleString('en-US', {
+                        {attendanceForDate.checkInTime ? new Date(attendanceForDate.checkInTime).toLocaleString('en-US', {
                           year: 'numeric',
                           month: '2-digit',
                           day: '2-digit',
@@ -503,7 +561,7 @@ export default function TeacherLanding() {
                           minute: '2-digit',
                           second: '2-digit',
                           hour12: true,
-                        })}
+                        }) : '-'}
                       </td>
                         <td className="py-2 px-4 border-b text-right">
                         {attendanceForDate.status.charAt(0).toUpperCase() + attendanceForDate.status.slice(1)}
@@ -624,6 +682,37 @@ const getWeather = async () => {
   }
 };
 
+const [isAddCourseModalOpen, setIsAddCourseModalOpen] = useState(false);
+const handleAddCourse = async (classId: string, className: string) => {
+  try {
+    const res = await fetch('/api/addcourse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teacherId: teacher!.teacherId, classId: classId, className: className })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Error adding course:', errorData.message);
+      return { success: false, message: errorData.message };
+    }
+
+    const data = await res.json();
+    setTeacher((prevTeacher) => {
+      if (prevTeacher) {
+        return {
+          ...prevTeacher,
+          classes: [...prevTeacher.classes, { classId, className }]
+        };
+      }
+      return prevTeacher;
+    });
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.error('Error in handleAddCourse function:', error);
+    return { success: false, message: 'An error occurred while adding the course' };
+  }
+};
   return (
     <div className="flex min-h-screen bg-gray-50 relative text-black">
       <div className="flex-grow bg-white">
@@ -831,7 +920,7 @@ const getWeather = async () => {
       {isScanning && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-            <QrScanner />
+            {/* <QrScanner /> */}
             <button
               onClick={handleCloseScanBox}
               className="mt-4 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700"
@@ -851,30 +940,55 @@ const getWeather = async () => {
             </div>
             <div className="max-h-80 overflow-y-auto">
               <ul>
-              {teacher && teacher.classes.map((teacherClass, index) => (
-                <li
-                key={index}
-                onClick={() => handleClassSelect(teacherClass.classId)}
-                className="py-3 px-6 border-b border-gray-200 text-lg font-semibold cursor-pointer hover:bg-gray-100 transition-all duration-200"
-                >
-                {teacherClass.classId + ": " + teacherClass.className}
-                </li>
-              ))}
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr>
+                  <th className="py-2 px-4 border-b text-left">Class</th>
+                  <th className="py-2 px-4 border-b text-left">Invite Code</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teacher && teacher.classes.map((teacherClass, index) => {
+                  const shiftBy = 7;
+                  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                  const mixedClassId = teacherClass.classId
+                    .split('')
+                    .map((char) => {
+                      const index = alphabet.indexOf(char.toUpperCase());
+                      if (index === -1) return char; // If character is not in the alphabet array, return it as is
+                      return alphabet[(index + shiftBy) % alphabet.length];
+                    })
+                    .join('');
+                  return (
+                    <tr
+                    key={index}
+                    onClick={() => handleClassSelect(teacherClass.classId)}
+                    className="cursor-pointer hover:bg-gray-100 transition-all duration-200"
+                    >
+                    <td className="py-3 px-6 border-b text-lg font-semibold">{teacherClass.classId + ": " + teacherClass.className}</td>
+                    <td className="py-3 px-6 border-b text-lg font-semibold">{mixedClassId}</td>
+                    </tr>
+                  );
+                  })}
+                </tbody>
+                </table>
               <li
                 key="remove-class"
                 onClick={() => {
                 setSelectedClass(null);
                 toggleManageClassesModal();
                 }}
-                className="py-3 px-6 border-b border-gray-200 text-lg font-semibold cursor-pointer hover:bg-red-100 transition-all duration-200 text-red-600"
+                className={`py-3 px-6 border-b border-gray-200 text-lg font-semibold  ${selectedClass ? 'hover:bg-red-100 cursor-pointer' : 'opacity-50 cursor-not-allowed'} transition-all duration-200 text-red-600`}
               >
-                Remove Current Class
+                Remove Current Selection
               </li>
               </ul>
             </div>
 
             <button
-              onClick={() => alert("Add a new course functionality coming soon!")}
+              onClick={() => {
+                setIsAddCourseModalOpen(true);
+              }}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-md mt-4 hover:bg-blue-700 transition duration-200"
             >
               Add a Course
@@ -951,6 +1065,73 @@ const getWeather = async () => {
           </div>
         </div>
       )}
+
+      {isAddCourseModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold">Add a New Course</h3>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                let classId = formData.get('classId') as string;
+                classId = classId.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                const className = formData.get('className') as string;
+                const result = await handleAddCourse(classId, className);
+                if (result.success) {
+                  setIsAddCourseModalOpen(false);
+                } else {
+                  setError(result.message);
+                }
+              }}
+            >
+              <div className="mb-4">
+                <label htmlFor="classId" className="block text-sm font-bold mb-2">
+                  Class ID
+                </label>
+                <input
+                  type="text"
+                  id="classId"
+                  name="classId"
+                  className="w-full p-2 border rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="className" className="block text-sm font-bold mb-2">
+                  Class Name
+                </label>
+                <input
+                  type="text"
+                  id="className"
+                  name="className"
+                  className="w-full p-2 border rounded-md"
+                  required
+                />
+              </div>
+              {error && <p className="text-red-600 mb-4">{error}</p>}
+              <div className="flex justify-between">
+                <button
+                  type="submit"
+                  className="py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Submit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAddCourseModalOpen(false)}
+                  className="py-2 px-4 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+                >
+                  Close
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
