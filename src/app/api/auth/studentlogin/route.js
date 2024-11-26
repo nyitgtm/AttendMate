@@ -38,10 +38,11 @@ export async function POST(req) {
             const scheduledTime = attendanceRecord.scheduledTime?.$date
                 ? new Date(attendanceRecord.scheduledTime.$date).toISOString()
                 : new Date(attendanceRecord.scheduledTime).toISOString();
-
-            const checkInTime = attendanceRecord.checkInTime?.$date
-                ? new Date(attendanceRecord.checkInTime.$date).toISOString()
-                : new Date(attendanceRecord.checkInTime).toISOString();
+                const checkInTime = attendanceRecord.checkInTime?.$date
+                    ? new Date(attendanceRecord.checkInTime.$date).toISOString()
+                    : attendanceRecord.checkInTime
+                        ? new Date(attendanceRecord.checkInTime).toISOString()
+                        : null;
 
             return {
                 ...attendanceRecord,

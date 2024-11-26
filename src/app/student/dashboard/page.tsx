@@ -39,8 +39,8 @@ export default function Dashboard() {
 
     const generateQRCode = (studentId: string) => {
         const intervalId = setInterval(() => {
-            const timestamp = Date.now();
-            const qrData = `${studentId}000${timestamp}`;
+            const timestamp = new Date().toLocaleString();
+            const qrData = `QRCODE$${studentId}$${timestamp}`;
             QRCode.toDataURL(qrData, (error, url) => {
                 if (!error) setQrCode(url);
             });
@@ -103,19 +103,21 @@ export default function Dashboard() {
             const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
             const filteredAttendance = student?.classes
-            .flatMap((cls) =>
-                cls.attendance.map((att) => ({
-                ...att,
-                classId: cls.classId,
-                classPoints: cls.attendance.reduce((acc, att) => acc + att.points, 0),
-                }))
-            )
-            .filter((att) => {
-                const matchesClass = selectedClass ? att.classId === selectedClass : true;
-                const matchesDate = selectedDate ? new Date(att.scheduledTime).toLocaleDateString('en-US', { timeZone: 'UTC' }) === new Date(selectedDate).toLocaleDateString('en-US', { timeZone: 'UTC' }) : true;
-                return matchesClass && matchesDate;
-            })
-            .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
+                .flatMap((cls) =>
+                    cls.attendance
+                        .filter((att) => new Date(att.scheduledTime) <= new Date())
+                        .map((att) => ({
+                            ...att,
+                            classId: cls.classId,
+                            classPoints: cls.attendance.reduce((acc, att) => acc + att.points, 0),
+                        }))
+                )
+                .filter((att) => {
+                    const matchesClass = selectedClass ? att.classId === selectedClass : true;
+                    const matchesDate = selectedDate ? new Date(att.scheduledTime).toLocaleDateString('en-US', { timeZone: 'UTC' }) === new Date(selectedDate).toLocaleDateString('en-US', { timeZone: 'UTC' }) : true;
+                    return matchesClass && matchesDate;
+                })
+                .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
 
 
 const [myActiveTab, mySetActiveTab] = useState('home'); // Track active tab
