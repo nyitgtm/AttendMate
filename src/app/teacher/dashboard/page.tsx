@@ -181,6 +181,8 @@ export default function TeacherLanding() {
   }, []);
 
   const [myActiveTab, mySetActiveTab] = useState('home'); // Track active tab
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  
   const renderContent = () => {
     switch (myActiveTab) {
       case 'home':
@@ -289,8 +291,32 @@ export default function TeacherLanding() {
                 setSelectedDate(e.target.value);
                 console.log('Selected date:', e.target.value);
                 }}
-                max={new Date().toLocaleDateString('en-CA')} // Prevent future dates
               />
+              {new Date(selectedDate + 'T00:00:00') > new Date(new Date().toLocaleDateString('en-CA') + 'T00:00:00') && selectedClass &&(
+                <button
+                  onClick={() => {
+                    handleAddClassDate();
+                  }}
+                  className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200 m-4"
+                >
+                  Add Meeting
+                </button>
+              )}
+              {new Date(selectedDate) > new Date(new Date().toLocaleDateString('en-CA') + 'T00:00:00') && (
+                <div className="mt-4">
+                  <label htmlFor="time" className="block text-lg font-bold mb-2">Select Time:</label>
+                  <input
+                  type="time"
+                  id="time"
+                  name="time"
+                  className="p-2 border rounded-md"
+                    onChange={(e) => {
+                      const selectedTime = e.target.value;
+                      setSelectedTime(selectedTime);
+                    }}
+                  />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -713,6 +739,27 @@ const handleAddCourse = async (classId: string, className: string) => {
     return { success: false, message: 'An error occurred while adding the course' };
   }
 };
+
+const handleAddClassDate = async () => {
+  try {
+    const res = await fetch('/api/addcoursedate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseId: selectedClass, scheduledTime: new Date(selectedDate + 'T' + (selectedTime || '00:00')) })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('Error adding course date:', errorData.message);
+      return { success: false, message: errorData.message };
+    }
+    alert('Class date added successfully');
+  } catch (error) {
+    console.error('Error in handleAddClassDate function:', error);
+    return { success: false, message: 'An error occurred while adding the class date' };
+  }}
+
+
   return (
     <div className="flex min-h-screen bg-gray-50 relative text-black">
       <div className="flex-grow bg-white">

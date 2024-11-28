@@ -24,6 +24,11 @@ export async function POST(req) {
             client.close();
             throw new Error('Class not found');
         }
+        // Remove the class from all students' classes array
+        await db.collection('students').updateMany(
+            { 'classes.classId': classId },
+            { $pull: { classes: { classId } } }
+        );
 
         // Remove the class from the teacher's classes array
         await db.collection('teachers').updateOne(
