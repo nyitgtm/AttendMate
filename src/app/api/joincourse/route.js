@@ -24,7 +24,7 @@ export async function POST(req) {
         }
 
         // Check if the student is already enrolled in the course
-        const isEnrolled = student.classes.some(cls => cls.classId === courseId);
+        const isEnrolled = Array.isArray(student.classes) && student.classes.some(cls => cls.classId === courseId);
         if (isEnrolled) {
             return new Response(JSON.stringify({ message: 'Student already enrolled in the course' }), { status: 400 });
         }
@@ -41,6 +41,9 @@ export async function POST(req) {
             classId: courseId,
             attendance: []
         };
+        if (!Array.isArray(student.classes)) {
+            student.classes = [];
+        }
         student.classes.push(newClass);
 
         // Save the updated student record

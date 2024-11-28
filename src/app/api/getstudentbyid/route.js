@@ -20,38 +20,31 @@ export async function POST(req) {
         }
 
         // Convert MongoDB's native types to normal types (e.g., `points` from `$numberInt`)
-        const points = student.points.$numberInt ? parseInt(student.points.$numberInt) : student.points;
-        const classes = student.classes.map((classData) => ({
+        const points = student.points?.$numberInt ? parseInt(student.points.$numberInt) : (student.points || 0);
+        const classes = student.classes ? student.classes.map((classData) => ({
             classId: classData.classId,
             classPoints: classData.classPoints?.$numberInt ? parseInt(classData.classPoints.$numberInt) : (classData.classPoints || 0),
             attendance: classData.attendance.map((attendanceRecord) => {
-            try {
-                // Correctly format the scheduledTime and checkInTime if they are in MongoDB's $date format
-                const scheduledTime = attendanceRecord.scheduledTime?.$date
+            // Correctly format the scheduledTime and checkInTime if they are in MongoDB's $date format
+            const scheduledTime = attendanceRecord.scheduledTime?.$date
                 ? new Date(attendanceRecord.scheduledTime.$date).toISOString()
-                : new Date(attendanceRecord.scheduledTime).toISOString();
-                const checkInTime = attendanceRecord.checkInTime?.$date
+                : attendanceRecord.scheduledTime
+                ? new Date(attendanceRecord.scheduledTime).toISOString()
+                : null;
+            const checkInTime = attendanceRecord.checkInTime?.$date
                 ? new Date(attendanceRecord.checkInTime.$date).toISOString()
                 : attendanceRecord.checkInTime
                 ? new Date(attendanceRecord.checkInTime).toISOString()
                 : null;
 
-                return {
+            return {
                 ...attendanceRecord,
                 scheduledTime,
                 checkInTime,
                 points: attendanceRecord.points?.$numberInt ? parseInt(attendanceRecord.points.$numberInt) : (attendanceRecord.points || 0)
-                };
-            } catch (error) {
-                return {
-                ...attendanceRecord,
-                scheduledTime: null,
-                checkInTime: null,
-                points: 0
-                };
-            }
+            };
             }),
-        }));
+        })) : [];
 
         // Successful response with student data
         return new Response(JSON.stringify({
@@ -66,6 +59,7 @@ export async function POST(req) {
             status: 200,
         });
     } catch (error) {
+        console.log(error);
         return new Response(JSON.stringify({ message: 'Internal Server Error' }), { status: 500 });
     } finally {
         if (client) {

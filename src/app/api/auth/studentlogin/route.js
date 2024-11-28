@@ -1,5 +1,4 @@
 import { MongoClient } from 'mongodb';
-import bcrypt from 'bcryptjs'; // Import bcryptjs for password hashing
 
 export async function POST(req) {
     const { email, password } = await req.json();
@@ -29,15 +28,17 @@ export async function POST(req) {
     }
 
     // Convert MongoDB's native types to normal types (e.g., `points` from `$numberInt`)
-    const points = user.points.$numberInt ? parseInt(user.points.$numberInt) : user.points;
-    const classes = user.classes.map((classData) => ({
+    const points = user.points?.$numberInt ? parseInt(user.points.$numberInt) : (user.points || 0);
+    const classes = user.classes ? user.classes.map((classData) => ({
         classId: classData.classId,
         classPoints: classData.classPoints?.$numberInt ? parseInt(classData.classPoints.$numberInt) : (classData.classPoints || 0),
         attendance: classData.attendance.map((attendanceRecord) => {
             // Correctly format the scheduledTime and checkInTime if they are in MongoDB's $date format
             const scheduledTime = attendanceRecord.scheduledTime?.$date
                 ? new Date(attendanceRecord.scheduledTime.$date).toISOString()
-                : new Date(attendanceRecord.scheduledTime).toISOString();
+                : attendanceRecord.scheduledTime
+                    ? new Date(attendanceRecord.scheduledTime).toISOString()
+                    : null;
             const checkInTime = attendanceRecord.checkInTime?.$date
                 ? new Date(attendanceRecord.checkInTime.$date).toISOString()
                 : attendanceRecord.checkInTime
@@ -51,7 +52,7 @@ export async function POST(req) {
                 points: attendanceRecord.points?.$numberInt ? parseInt(attendanceRecord.points.$numberInt) : (attendanceRecord.points || 0)
             };
         }),
-    }));
+    })) : [];
 
     // Successful login response with user data
     client.close();

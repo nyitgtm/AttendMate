@@ -99,6 +99,14 @@ export default function StudentLogin() {
                         >
                             Login as Student
                         </button>
+                        <p className="text-center text-gray-600">New here?</p>
+                        <button
+                            type="button"
+                            onClick={() => router.push('/student/create-account')}
+                            className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-200 mt-4"
+                        >
+                            Create Account
+                        </button>
                     </form>
                     {message && <p className="mt-4 text-center text-red-600">{message}</p>}
                 </div>

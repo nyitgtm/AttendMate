@@ -45,6 +45,11 @@ export default function Dashboard() {
                 body: JSON.stringify({ studentId: givenStudentId }),
             });
 
+            if (!res.ok) {
+                const errorData = await res.json();
+                return;
+            }
+
             const data: Student = await res.json();
             const { studentId, studentName, studentEmail, classes } = data;
 
@@ -263,7 +268,7 @@ const renderContent = () => {
                                     return alphabet[(index - 7 + alphabet.length) % alphabet.length];
                                 }).join('');
                                 const result = await joinClass(originalClassId);
-                                if (result.success) {
+                                if (result) {
                                     setInviteCode('');
                                     setShowCheckmark(true);
                                     setTimeout(() => setShowCheckmark(false), 2000);
@@ -272,7 +277,7 @@ const renderContent = () => {
                                     setShowCheckmark(false);
                                 }
                                 if (!result.success) {
-                                    alert(`Failed to join the class: ${result.message}`);
+                                    alert(result.message);
                                 }
                             }}
                             className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300"
