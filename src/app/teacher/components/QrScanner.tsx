@@ -140,6 +140,24 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
             console.log('Student ID:', studentId);
             console.log('Date:', date);
 
+            const earlyCheckInBonus = 10; // Define bonus points for early check-in
+            const onTimeCheckInPoints = 5; // Define points for on-time check-in
+            const lateCheckInPenalty = -5; // Define penalty points for late check-in
+
+            // Calculate the scheduled time for the class
+            const scheduledTime = new Date(student?.classes.find(cls => cls.classId === classId)?.attendance[0].scheduledTime || '');
+
+            // Calculate the difference in minutes between the scheduled time and the actual check-in time
+            const timeDifferenceInMinutes = (new Date(date).getTime() - scheduledTime.getTime()) / (1000 * 60);
+
+            // Determine the points based on the check-in time
+            let points = onTimeCheckInPoints; // Default points for on-time check-in
+            if (timeDifferenceInMinutes < -10) {
+                points += earlyCheckInBonus; // Add bonus points for early check-in
+            } else if (timeDifferenceInMinutes > 10) {
+                points += lateCheckInPenalty; // Apply penalty for late check-in
+            }
+
             if (student) {
                 setNotification(`Scan registered: ${student.studentName} (${student.studentId})`);
                 setNotificationColor('#0C0');
