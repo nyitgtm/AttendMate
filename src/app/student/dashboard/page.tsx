@@ -127,28 +127,32 @@ export default function Dashboard() {
             const [selectedClass, setSelectedClass] = useState<string | null>(null);
             const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-            const filteredAttendance = student?.classes
-                .flatMap((cls) =>
+            const filteredAttendance = student?.classes?.length
+                ? student.classes.flatMap((cls) =>
                     cls.attendance
-                        .filter((att) => new Date(att.scheduledTime) <= new Date())
-                        .map((att) => ({
-                            ...att,
-                            classId: cls.classId,
-                            classPoints: cls.attendance.reduce((acc, att) => acc + att.points, 0),
-                        }))
+                        ? cls.attendance
+                            .filter((att) => new Date(att.scheduledTime) <= new Date())
+                            .map((att) => ({
+                                ...att,
+                                classId: cls.classId,
+                                classPoints: cls.attendance.reduce((acc, att) => acc + att.points, 0),
+                            }))
+                        : []
                 )
                 .filter((att) => {
                     const matchesClass = selectedClass ? att.classId === selectedClass : true;
                     const matchesDate = selectedDate ? new Date(att.scheduledTime).toLocaleDateString('en-US', { timeZone: 'UTC' }) === new Date(selectedDate).toLocaleDateString('en-US', { timeZone: 'UTC' }) : true;
                     return matchesClass && matchesDate;
                 })
-                .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
+                    .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime())
+                : [];
 
 
 const [myActiveTab, mySetActiveTab] = useState('home'); // Track active tab
 
 
 const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+const [inviteCode, setInviteCode] = useState<string>('');
 const [studentsPoints, setStudentsPoints] = useState<Student[]>([]);
 
 useEffect(() => {
@@ -195,7 +199,21 @@ const getWeather = async () => {
     }
   }, [weatherData]);
 
-
+const joinClass = async (requestedClassId: string) => {
+    const res = await fetch('/api/joincourse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: student?.studentId, courseId: requestedClassId }),
+    });
+    const data = await res.json();
+    if (data.success) {
+        if (student?.studentId) {
+            fetchStudentData(student.studentId);
+        }
+        setInviteCode('');
+    }
+    return data;
+}
 
 
 if (!student) {
@@ -227,6 +245,39 @@ const renderContent = () => {
                                     ✔
                                 </span>
                             )}
+                        </button>
+                        
+                        <input
+                            type="text"
+                            placeholder="Enter invite code"
+                            className="p-2 border rounded-md"
+                            value={inviteCode}
+                            onChange={(e) => setInviteCode(e.target.value)}
+                        />
+                        <button
+                            onClick={async () => {
+                                const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                                const originalClassId = inviteCode.split('').map((char) => {
+                                    const index = alphabet.indexOf(char.toUpperCase());
+                                    if (index === -1) return char;
+                                    return alphabet[(index - 7 + alphabet.length) % alphabet.length];
+                                }).join('');
+                                const result = await joinClass(originalClassId);
+                                if (result.success) {
+                                    setInviteCode('');
+                                    setShowCheckmark(true);
+                                    setTimeout(() => setShowCheckmark(false), 2000);
+                                } else {
+                                    setInviteCode('');
+                                    setShowCheckmark(false);
+                                }
+                                if (!result.success) {
+                                    alert(`Failed to join the class: ${result.message}`);
+                                }
+                            }}
+                            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300"
+                        >
+                            Join Class
                         </button>
                         <div>
                             <h3 className="text-lg font-bold mb-2">Weather</h3>

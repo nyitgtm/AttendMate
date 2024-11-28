@@ -23,24 +23,33 @@ export async function POST(req) {
         const points = student.points.$numberInt ? parseInt(student.points.$numberInt) : student.points;
         const classes = student.classes.map((classData) => ({
             classId: classData.classId,
-            classPoints: classData.classPoints.$numberInt ? parseInt(classData.classPoints.$numberInt) : classData.classPoints,
+            classPoints: classData.classPoints?.$numberInt ? parseInt(classData.classPoints.$numberInt) : (classData.classPoints || 0),
             attendance: classData.attendance.map((attendanceRecord) => {
+            try {
                 // Correctly format the scheduledTime and checkInTime if they are in MongoDB's $date format
                 const scheduledTime = attendanceRecord.scheduledTime?.$date
-                    ? new Date(attendanceRecord.scheduledTime.$date).toISOString()
-                    : new Date(attendanceRecord.scheduledTime).toISOString();
+                ? new Date(attendanceRecord.scheduledTime.$date).toISOString()
+                : new Date(attendanceRecord.scheduledTime).toISOString();
                 const checkInTime = attendanceRecord.checkInTime?.$date
-                    ? new Date(attendanceRecord.checkInTime.$date).toISOString()
-                    : attendanceRecord.checkInTime
-                    ? new Date(attendanceRecord.checkInTime).toISOString()
-                    : null;
+                ? new Date(attendanceRecord.checkInTime.$date).toISOString()
+                : attendanceRecord.checkInTime
+                ? new Date(attendanceRecord.checkInTime).toISOString()
+                : null;
 
                 return {
-                    ...attendanceRecord,
-                    scheduledTime,
-                    checkInTime,
-                    points: attendanceRecord.points.$numberInt ? parseInt(attendanceRecord.points.$numberInt) : attendanceRecord.points
+                ...attendanceRecord,
+                scheduledTime,
+                checkInTime,
+                points: attendanceRecord.points?.$numberInt ? parseInt(attendanceRecord.points.$numberInt) : (attendanceRecord.points || 0)
                 };
+            } catch (error) {
+                return {
+                ...attendanceRecord,
+                scheduledTime: null,
+                checkInTime: null,
+                points: 0
+                };
+            }
             }),
         }));
 
