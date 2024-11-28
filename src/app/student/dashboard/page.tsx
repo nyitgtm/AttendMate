@@ -220,6 +220,25 @@ const joinClass = async (requestedClassId: string) => {
     return data;
 }
 
+const leaveClass = async (requestedClassId: string) => {
+    try {
+    const res = await fetch('/api/removestudent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: student?.studentId, courseId: requestedClassId }),
+    });
+    const data = await res.json();
+    
+    alert("You have left the class.");
+    setSelectedClass(null);
+        if (student?.studentId) {
+            fetchStudentData(student.studentId);
+        }
+    } catch (error) {
+        console.error('Error in leaveClass function:', error);
+        return { success: false, message: 'An error occurred while leaving class' };
+    }}
+
 
 if (!student) {
     return <p>Loading student data...</p>;
@@ -405,7 +424,14 @@ const renderContent = () => {
                         onChange={(e) => setSelectedDate(e.target.value)}
                     />
                     </div>
+                    
                 </div>
+                {selectedClass && (
+                        <button
+                            onClick={() => leaveClass(selectedClass)}
+                            className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-700 transition duration-300"
+                        > Leave Class </button>
+                    )}
                 </div>
 
                 <table className="min-w-full bg-white">

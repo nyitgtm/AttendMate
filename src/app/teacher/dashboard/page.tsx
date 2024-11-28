@@ -255,17 +255,17 @@ export default function TeacherLanding() {
                   <span className="animate-pulse">Select a class</span>
                 </>
                 )}
-            {selectedClass && (
+            {selectedClass && new Date(selectedDate + 'T00:00:00').toISOString().split('T')[0] === new Date().toISOString().split('T')[0] && (
               <button
               onClick={() => {
-                if (selectedClass) {
-                const confirmDelete = window.confirm(`Are you sure you want to delete the class ${selectedClass}?`);
-                if (confirmDelete) {
-                  handleDeleteClass(selectedClass);
-                }
-                }
+              if (selectedClass) {
+              const confirmDelete = window.confirm(`Are you sure you want to delete the class ${selectedClass}?`);
+              if (confirmDelete) {
+                handleDeleteClass(selectedClass);
+              }
+              }
               }}
-              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200"
+              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 p-5"
               >
               Delete Class
               </button>
@@ -348,6 +348,53 @@ export default function TeacherLanding() {
               <h3 className="text-lg font-bold mb-2">Traffic Patterns</h3>
               <p className="text-gray-600">Moderate traffic on main roads</p>
             </div>
+
+          <div className="mt-6"></div>
+
+            {selectedClass && (
+              <>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold">All Students ({students?.length})</h3>
+                  <button
+                    onClick={() => handleClassSelect(selectedClass!)}
+                    className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
+                  >
+                    Refresh
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white">
+                    <thead>
+                      <tr>
+                        <th className="py-2 px-4 border-b text-left">Student Name</th>
+                        <th className="py-2 px-4 border-b text-right">Student ID</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students && students.map((student, index) => (
+                        <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'} hover:bg-gray-200`}>
+                          <td className="py-2 px-4 border-b text-left">{student.studentName}</td>
+                          <td className="py-2 px-4 border-b text-right">{student.studentId}</td>
+                        <td className="py-2 px-4 border-b text-right">
+                          <button
+                            onClick={() => {
+                              const confirmDelete = window.confirm(`Are you sure you want to remove ${student.studentName}?`);
+                              if (confirmDelete) {
+                                removeStudent(student.studentId);
+                              }
+                            }}
+                            className="bg-red-600 text-white py-1 px-2 rounded-md hover:bg-red-700 transition duration-200"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </div>
         );
 
@@ -356,12 +403,7 @@ export default function TeacherLanding() {
                 <div className="flex justify-between mb-4">
                 <div className="flex-1 text-center bg-gray-200 py-2 rounded-l-lg">
                 <h3 className="font-bold text-xl">Total</h3>
-                <p>{students ? students.filter(student => {
-                  const attendanceForDate = student.classes[0].attendance.find(
-                    (attendance) => new Date(attendance.scheduledTime).toLocaleDateString('en-CA') === selectedDate
-                  );
-                  return attendanceForDate;
-                  }).length : 0}</p>
+                <p>{students ? students.length : 0}</p>
                 </div>
                 <div className="flex-1 text-center bg-gray-200 py-2">
                 <h3 className="font-bold text-xl">Remaining</h3>
@@ -469,7 +511,7 @@ export default function TeacherLanding() {
                           }}
                           className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                           >
-                          {attendanceForDate.status === 'present' ? 'Mark Absent' : 'Mark Present'}
+                          {attendanceForDate.status === 'present' ? 'Mark Absent' : attendanceForDate.status === 'absent' ? 'Mark Present' : 'Mark Late'}
                           </button>
                           <div className="p-2 border-t">
                           <label className="block text-sm font-bold mb-1">Edit Points</label>
@@ -489,7 +531,7 @@ export default function TeacherLanding() {
                               return s;
                             }) || [];
                             setStudents(updatedStudents);
-                            const attendanceStatus = presentStudents.includes(student.studentName) ? 'present' : 'absent';
+                            const attendanceStatus = presentStudents.includes(student.studentName) ? 'present' : absentStudents.includes(student.studentName) ? 'absent' : 'late';
                             await updateAttendance(
                               student.studentId,
                               selectedClass!,
@@ -590,7 +632,7 @@ export default function TeacherLanding() {
                         }) : '-'}
                       </td>
                         <td className="py-2 px-4 border-b text-right">
-                        {attendanceForDate.status.charAt(0).toUpperCase() + attendanceForDate.status.slice(1)}
+                        {attendanceForDate && attendanceForDate.status ? attendanceForDate.status.charAt(0).toUpperCase() + attendanceForDate.status.slice(1) : 'N/A'}
                         </td>
                       <td className="py-2 px-4 border-b text-right">{attendanceForDate.points}</td>
                     </tr>
@@ -654,7 +696,7 @@ const handleClassSelect = async (classId: string) => {
         setAbsentStudents(absent);
         console.log(data);
     } else {
-        console.error(data.message); // Log error to console for debugging
+        //console.error(data.message); // Log error to console for debugging
         setStudents([]);
         setPresentStudents([]);
         setAbsentStudents([]);
@@ -759,6 +801,28 @@ const handleAddClassDate = async () => {
     return { success: false, message: 'An error occurred while adding the class date' };
   }}
 
+const removeStudent = async (studentId: string) => {
+  try {
+    const res = await fetch('/api/removestudent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId: studentId, courseId: selectedClass })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      // console.error('Error removing student:', errorData.message);
+      alert('Error removing student');
+      return { success: false, message: errorData.message };
+    }
+    else {
+      alert('Student removed successfully');
+    }
+  } catch (error) {
+    console.error('Error in removeStudent function:', error);
+    return { success: false, message: 'An error occurred while removing the student' };
+  }}
+
 
   return (
     <div className="flex min-h-screen bg-gray-50 relative text-black">
@@ -820,7 +884,12 @@ const handleAddClassDate = async () => {
           </button>
           <div className="h-8 border-l-2 border-gray-500"></div>
           <button
-            onClick={() => selectedClass && mySetActiveTab('students')}
+            onClick={() => {
+              if (selectedClass) {
+                handleClassSelect(selectedClass);
+                mySetActiveTab('students');
+              }
+            }}
             className={`text-sm md:text-lg font-semibold py-2 px-2 md:px-4 rounded-md flex-1 h-12 ${myActiveTab === 'students' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-black'} ${!selectedClass ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             See Students
@@ -910,10 +979,7 @@ const handleAddClassDate = async () => {
         </main> */}
 
         <main className="flex-grow p-6">{renderContent()}</main>
-
-        <footer className="bg-gray-200 text-center py-4 fixed bottom-5 w-full">
-          <p className="text-sm">&copy; 2024 AttendMate. All rights reserved.</p>
-        </footer>
+        <div className="h-10"></div>
       </div>
 
       <Sidebar teacher={teacher} />

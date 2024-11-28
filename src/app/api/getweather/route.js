@@ -55,8 +55,6 @@ export async function POST(req) {
             },
         };
 
-        console.log('Weather Data:', weatherData);
-
         // Return the weather data as the response
         return new Response(JSON.stringify({ message: 'Weather data fetched successfully', data: weatherData }), {
             status: 200,

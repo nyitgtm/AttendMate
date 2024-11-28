@@ -21,19 +21,26 @@ export async function POST(req) {
         for (const student of students) {
             const classIndex = student.classes.findIndex(cls => cls.classId === courseId);
             if (classIndex !== -1) {
-                const newAttendance = {
-                    scheduledTime: new Date(new Date(scheduledTime).setDate(new Date(scheduledTime).getDate())).toISOString(),
-                    checkInTime: null,
-                    absent: null,
-                    points: 0
-                };
-                student.classes[classIndex].attendance = [...student.classes[classIndex].attendance, newAttendance];
+            const newAttendance = {
+                scheduledTime: new Date(new Date(scheduledTime).setDate(new Date(scheduledTime).getDate())).toISOString(),
+                checkInTime: null,
+                absent: null,
+                points: 0
+            };
 
-                // Save the updated student record
-                await db.collection('students').updateOne(
-                    { studentId: student.studentId },
-                    { $set: { 'classes': student.classes } }
-                );
+            // Check if the attendance instance already exists
+            const attendanceExists = student.classes[classIndex].attendance.some(att => att.scheduledTime === newAttendance.scheduledTime);
+            if (attendanceExists) {
+                continue; // Skip if the attendance instance already exists
+            }
+
+            student.classes[classIndex].attendance = [...student.classes[classIndex].attendance, newAttendance];
+
+            // Save the updated student record
+            await db.collection('students').updateOne(
+                { studentId: student.studentId },
+                { $set: { 'classes': student.classes } }
+            );
             }
         }
 
