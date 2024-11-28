@@ -24,6 +24,7 @@ type Student = {
 export default function Dashboard() {
     const [student, setStudent] = useState<Student | null>(null);
     const [qrCode, setQrCode] = useState<string | null>(null);
+    const [showCheckmark, setShowCheckmark] = useState(false);
 
     const router = useRouter();
 
@@ -36,6 +37,30 @@ export default function Dashboard() {
             generateQRCode(studentData.studentId);
         }
     }, [router]);
+    const fetchStudentData = async (givenStudentId: string) => {
+        try {
+            const res = await fetch('/api/getstudentbyid', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentId: givenStudentId }),
+            });
+
+            const data: Student = await res.json();
+            const { studentId, studentName, studentEmail, classes } = data;
+
+            if (data) {
+                localStorage.setItem("studentData", JSON.stringify(data));
+                setStudent(data);
+                generateQRCode(data.studentId);
+            } else {
+                // router.push("/student");
+                alert("this Error fetching student data.");
+            }
+        } catch (error) {
+            console.error('Error fetching student data:', error);
+            router.push("/student");
+        }
+    };
 
     const generateQRCode = (studentId: string) => {
         const intervalId = setInterval(() => {
@@ -188,6 +213,21 @@ const renderContent = () => {
                             <h2 className="text-2xl font-semibold">{student.studentName}</h2>
                             <p className="text-gray-500">{student.studentEmail}</p>
                         </div>
+                        <button
+                            onClick={() => {
+                                fetchStudentData(student.studentId);
+                                setShowCheckmark(true);
+                                setTimeout(() => setShowCheckmark(false), 2000); // Hide checkmark after 2 seconds
+                            }}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300 flex items-center"
+                        >
+                            Refresh
+                            {showCheckmark && (
+                                <span className="ml-2 text-green-500">
+                                    ✔
+                                </span>
+                            )}
+                        </button>
                         <div>
                             <h3 className="text-lg font-bold mb-2">Weather</h3>
                             {weatherData && weatherData.data && weatherData.data.current && weatherData.data.hourly ? (
