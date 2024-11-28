@@ -37,15 +37,21 @@ export async function POST(req) {
             return attendanceDate === date.slice(0, 10); // Compare only the date part (YYYY-MM-DD)
         });
 
-        // Check if the attendance record is found
+        // If the attendance record is not found, create a new one
         if (attendanceIndex === -1) {
-            return new Response(JSON.stringify({ message: 'Attendance record not found for this date' }), { status: 404 });
+            const newAttendance = {
+                scheduledTime: new Date(date),
+                status: status,
+                points: points,
+                checkInTime: new Date()
+            };
+            student.classes[classIndex].attendance = [...student.classes[classIndex].attendance, newAttendance];
+        } else {
+            // Update the attendance status and points
+            student.classes[classIndex].attendance[attendanceIndex].status = status;
+            student.classes[classIndex].attendance[attendanceIndex].points = points;
+            student.classes[classIndex].attendance[attendanceIndex].checkInTime = new Date();
         }
-
-        // Update the attendance status and points
-        student.classes[classIndex].attendance[attendanceIndex].status = status;
-        student.classes[classIndex].attendance[attendanceIndex].points = points;
-        student.classes[classIndex].attendance[attendanceIndex].checkInTime = new Date();
 
         // Save the updated student record
         const result = await db.collection('students').updateOne(

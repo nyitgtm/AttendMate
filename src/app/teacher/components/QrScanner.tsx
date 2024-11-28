@@ -69,13 +69,22 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && scanData.trim() !== '' && isScanning) {
-            if (scanData.trim().length < 36 || scanData.trim().length > 38) {
+            if (![10, 36, 37, 38].includes(scanData.trim().length)) {
                 setNotification('Invalid scan data. Please try again.');
                 setNotificationColor('#FF0000');
                 setScanData('');
                 return;
             }
-            const [typeOfScan, studentId, date] = scanData.split('$');
+
+            let typeOfScan: string, studentId: string, date: string;
+            if (scanData.length == 10) {
+                typeOfScan = "QRCODE";
+                studentId = scanData.substring(3,11);
+                date = new Date().toLocaleString();
+            } else {
+                [typeOfScan, studentId, date] = scanData.split('$');
+            }
+
             if (!typeOfScan || !studentId || !date) {
                 setNotification('Invalid scan data format. Please try again.');
                 setNotificationColor('#FF0000');
@@ -90,7 +99,7 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
                 return;
             }
 
-            if (studentId.length !== 6) {
+            if (studentId.length !== 7) {
                 setNotification('Invalid student ID length. Please try again.');
                 setNotificationColor('#FF0000');
                 setScanData('');
