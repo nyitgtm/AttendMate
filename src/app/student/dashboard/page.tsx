@@ -303,6 +303,12 @@ const renderContent = () => {
                         >
                             Join Class
                         </button>
+                        <button
+                            onClick={() => router.push('/student/chatbox')}
+                            className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition duration-300"
+                        >
+                            Open Chat
+                        </button>
                         <div>
                             <h3 className="text-lg font-bold mb-2">Weather</h3>
                             {weatherData && weatherData.data && weatherData.data.current && weatherData.data.hourly ? (
