@@ -2,6 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import CameraScaner from './QrReader';
+import QrReader from './QrReader';
 
 type Student = {
     selected: any;
@@ -167,6 +169,7 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
         setIsScanning(false);
     };
 
+    const [openQr, setOpenQr] = useState<boolean>(false);
 
     const updateAttendance = async (studentId: string, classId: string, date: Date, status: string, points: number) => {
         try {
@@ -183,6 +186,9 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
                 console.error('Error updating attendance:', errorData.message);
                 return { success: false, message: errorData.message };
             }
+
+            const audio = new Audio('/bell.mp3');
+            audio.play();
       
             const data = await res.json();
             return { success: true, message: data.message };
@@ -193,28 +199,46 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
       };
 
     return (
-        <div>
-            <h1 className="text-xl text-black font-semibold">{isScanning ? "Currently scanning... Please don't press any key or leave this page." : "Click 'Start Scanning' to begin."}</h1>
+        <div className="flex flex-col items-center justify-center">
+            <h1 className="text-xl text-black font-semibold text-center">{isScanning ? "Currently scanning... Please don't press any key or leave this page." : "Click your Scanning Options"}</h1>
             {isScanning && <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 mx-auto mb-4 my-5"></div>}
             <input
-                ref={inputRef}
-                type="text"
-                value={scanData}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
-                autoFocus={isScanning}
+            ref={inputRef}
+            type="text"
+            value={scanData}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            style={{ opacity: 0, position: 'absolute', pointerEvents: 'none' }}
+            autoFocus={isScanning}
             />
             <div style={{ marginTop: '20px', fontSize: '18px', color: notificationColor }}>{notification}</div>
-            {!isScanning ? (
-                <button className="text-black border-solid border-2 border-black" onClick={handleStartScanning} style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>
-                    Start Scanning
-                </button>
-            ) : (
-                <button className="text-red-600 border-solid border-2 border-red-600" onClick={handleStopScanning} style={{ marginTop: '20px', padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>
-                    Stop Scanning
-                </button>
+            {!openQr && (
+                <>
+                    {!isScanning ? (
+                        <button className="text-black border-solid border-2 border-black mt-5 px-5 py-2 text-lg cursor-pointer" onClick={handleStartScanning}>
+                            Start Physical Scanners
+                        </button>
+                    ) : (
+                        <button className="text-red-600 border-solid border-2 border-red-600 mt-5 px-5 py-2 text-lg cursor-pointer" onClick={handleStopScanning}>
+                            Stop Scanning
+                        </button>
+                    )}
+                    {!isScanning && <p className="py-5"> OR </p>}
+                </>
             )}
+
+            {!isScanning && <button className="px-5 py-2 text-lg cursor-pointer border-2 border-solid" onClick={() => { setOpenQr(!openQr); setIsScanning(!openQr); }}>
+                {openQr ? "Close" : "Start"} Camera Scanner
+            </button>}
+            {openQr && 
+            <div>
+            <div className="flex justify-center">
+                <button className="text-red-600 border-solid border-2 border-red-600 mt-5 py-2 px-5 text-lg cursor-pointer" onClick={() => { handleStopScanning(); setOpenQr(!openQr); }} >
+                    Stop Camera Scanner
+                </button>
+            </div>
+            <QrReader myClassId={classId} />
+            </div>}
         </div>
     );
 };
