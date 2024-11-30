@@ -256,19 +256,27 @@ export default function TeacherLanding() {
                 </>
                 )}
             {selectedClass && new Date(selectedDate + 'T00:00:00').toISOString().split('T')[0] === new Date().toISOString().split('T')[0] && (
-              <button
-              onClick={() => {
-              if (selectedClass) {
-              const confirmDelete = window.confirm(`Are you sure you want to delete the class ${selectedClass}?`);
-              if (confirmDelete) {
-                handleDeleteClass(selectedClass);
-              }
-              }
-              }}
-              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200 p-5"
-              >
-              Delete Class
-              </button>
+                <div className='space-x-5'>
+                <button
+                  onClick={() => {
+                  if (selectedClass) {
+                    const confirmDelete = window.confirm(`Are you sure you want to delete the class ${selectedClass}?`);
+                    if (confirmDelete) {
+                    handleDeleteClass(selectedClass);
+                    }
+                  }
+                  }}
+                  className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200"
+                >
+                  Delete Class
+                </button>
+                <button
+                  onClick={() => router.push('/teacher/chatbox')}
+                  className="bg-purple-500 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200"
+                >
+                  Open Chat
+                </button>
+                </div>
             )}
             </h2>
 
@@ -319,6 +327,8 @@ export default function TeacherLanding() {
                 )}
               </div>
             </div>
+
+
 
             <div>
               <h3 className="text-lg font-bold mb-2">Weather</h3>
