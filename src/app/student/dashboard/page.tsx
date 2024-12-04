@@ -98,7 +98,7 @@ export default function Dashboard() {
                             const targetLat = 40.7376092; // Replace with the target latitude
                             const targetLng = -73.7134038; // Replace with the target longitude
                             const distance = getDistanceFromLatLonInMiles(userLat, userLng, targetLat, targetLng);
-                            if (distance <= 30000) {
+                            if (distance <= 3) {
                                 setIsWithinRadius(true);
                                 clearInterval(intervalId);
                             } else {
@@ -106,7 +106,7 @@ export default function Dashboard() {
                             }
                         });
                     }
-                    setIsWithinRadius(true);
+                    setIsWithinRadius(false);
                 }, 1000);
 
                 return () => clearInterval(intervalId);
