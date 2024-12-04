@@ -394,7 +394,7 @@ const renderContent = () => {
                                 <p className="text-lg font-semibold">You are not near NYIT yet to receive the QR code. Please come within 3 miles.</p>
                                 
                                 <p className="text-lg font-semibold text-center">Please avoid texting while driving. <br /> You can send an email with your location below.</p>
-                                <button className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition duration-300">Send Email</button>
+                                <a href="mailto:?subject=Excuse For Lateness&body=Excuse my Lateness" className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition duration-300">Send Email</a>
                             </div>
                         </div>
                     )}
