@@ -78,6 +78,9 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
                 date = new Date().toLocaleString();
             } else {
                 [typeOfScan, studentId, date] = scanData.split('$');
+                console.log('Type of Scan:', typeOfScan);
+                console.log('Student ID:', studentId);
+                console.log('Date:', date);
             }
 
             if (!typeOfScan || !studentId || !date) {

@@ -66,7 +66,7 @@ const QrReader: React.FC<QrScannerProps> = ({ myClassId }) => {
         if (!data) return;
 
         let typeOfScan: string, studentId: string, date: string;
-        if (data.length > 36 && data.length < 38) {
+        if (data.length > 34) {
             [typeOfScan, studentId, date] = data.split('$');
         } else {
             setNotification('Invalid scan data format. Please try again.');
@@ -190,19 +190,9 @@ const QrReader: React.FC<QrScannerProps> = ({ myClassId }) => {
                 />
             </div>
             {scannedResult && (
-                <p
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        zIndex: 99999,
-                        color: "white",
-                    }}
-                >
-                    Scanned Result: {scannedResult}
-                </p>
+                <p></p>
             )}
-            {notification && (
+            {notification !== '' && (
                 <p
                     style={{
                         position: "absolute",
