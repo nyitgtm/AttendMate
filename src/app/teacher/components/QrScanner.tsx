@@ -71,13 +71,6 @@ const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && scanData.trim() !== '' && isScanning) {
-            if (![10, 36, 37, 38].includes(scanData.trim().length)) {
-                setNotification('Invalid scan data. Please try again.');
-                setNotificationColor('#FF0000');
-                setScanData('');
-                return;
-            }
-
             let typeOfScan: string, studentId: string, date: string;
             if (scanData.length == 10) {
                 typeOfScan = "QRCODE";
