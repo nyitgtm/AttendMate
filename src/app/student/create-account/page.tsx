@@ -5,6 +5,23 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
+/**
+ * The `StudentCreateAccount` component renders a form for creating a new student account.
+ * It includes fields for email, student ID, full name, password, and password confirmation.
+ * The form validates the input fields and displays appropriate error messages.
+ * On successful form submission, it sends a POST request to the server to create the account.
+ * If the account creation is successful, it redirects the user to the student login page.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ * 
+ * @example
+ * <StudentCreateAccount />
+ * 
+ * @remarks
+ * This component uses React hooks for state management and Next.js router for navigation.
+ * It also includes basic form validation and error handling.
+ */
 export default function StudentCreateAccount() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

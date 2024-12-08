@@ -1,5 +1,27 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to add a new attendance instance for a course.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object indicating the result of the operation.
+ *
+ * @throws {Error} - Throws an error if there is an issue with the database connection or the request processing.
+ *
+ * The request body should contain:
+ * @typedef {Object} RequestBody
+ * @property {string} courseId - The ID of the course.
+ * @property {string} scheduledTime - The scheduled time for the attendance instance.
+ *
+ * The response will be:
+ * @typedef {Object} ResponseBody
+ * @property {string} message - The message indicating the result of the operation.
+ *
+ * Possible response statuses:
+ * - 200: Attendance instances added successfully.
+ * - 404: No students found in the course.
+ * - 500: Internal server error.
+ */
 export async function POST(req) {
     try {
         // Parse the request body

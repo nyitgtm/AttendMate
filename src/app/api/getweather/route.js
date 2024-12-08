@@ -1,6 +1,14 @@
 import { fetchWeatherApi } from 'openmeteo';
 
 // This function handles a POST request to fetch weather data
+/**
+ * Handles the POST request to fetch weather data based on provided latitude and longitude.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object containing weather data or an error message.
+ *
+ * @throws {Error} - Throws an error if there is an issue processing the request.
+ */
 export async function POST(req) {
     try {
         // Parse the request body for location data (latitude and longitude)

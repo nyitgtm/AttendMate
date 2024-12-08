@@ -1,5 +1,13 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to delete a class from a teacher's schedule and all students' schedules.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object indicating the result of the operation.
+ *
+ * @throws {Error} - Throws an error if the teacher or class is not found, or if there is a database connection issue.
+ */
 export async function POST(req) {
     try {
         // Parse the request body

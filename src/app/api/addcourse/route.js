@@ -1,5 +1,13 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to add a new class to a teacher's record.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object indicating the result of the operation.
+ *
+ * @throws {Error} If the teacher is not found or if the class already exists.
+ */
 export async function POST(req) {
     try {
         // Parse the request body

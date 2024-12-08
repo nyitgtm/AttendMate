@@ -1,5 +1,13 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to get students by course name.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object containing the list of students or an error message.
+ *
+ * @throws {Error} - Throws an error if there is an issue with the database connection or query.
+ */
 export async function POST(req) {
     try {
         // Extract the course name from the request body

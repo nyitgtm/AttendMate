@@ -21,6 +21,109 @@ type Student = {
     }[];
 };
 
+/**
+ * Dashboard component for the student dashboard page.
+ * 
+ * @returns {JSX.Element} The rendered dashboard component.
+ * 
+ * @component
+ * 
+ * @example
+ * return (
+ *   <Dashboard />
+ * )
+ * 
+ * @remarks
+ * This component handles the student dashboard functionalities including:
+ * - Fetching and displaying student data.
+ * - Generating and displaying QR codes.
+ * - Handling geolocation to check if the student is within a certain radius.
+ * - Fetching and displaying weather data.
+ * - Allowing students to join or leave classes.
+ * - Displaying attendance history and leaderboard.
+ * 
+ * @function
+ * @name Dashboard
+ * 
+ * @typedef {Object} Student
+ * @property {string} studentId - The ID of the student.
+ * @property {string} studentName - The name of the student.
+ * @property {string} studentEmail - The email of the student.
+ * @property {Array<Class>} classes - The classes the student is enrolled in.
+ * 
+ * @typedef {Object} Class
+ * @property {string} classId - The ID of the class.
+ * @property {Array<Attendance>} attendance - The attendance records for the class.
+ * 
+ * @typedef {Object} Attendance
+ * @property {string} scheduledTime - The scheduled time of the class.
+ * @property {string} checkInTime - The check-in time of the student.
+ * @property {string} status - The attendance status (e.g., "present", "absent").
+ * @property {number} points - The points awarded for the attendance.
+ * 
+ * @typedef {Object} WeatherData
+ * @property {Object} data - The weather data object.
+ * @property {Object} data.current - The current weather data.
+ * @property {number} data.current.temperature2m - The current temperature in Fahrenheit.
+ * @property {number} data.current.windSpeed10m - The current wind speed in MPH.
+ * @property {Object} data.hourly - The hourly weather data.
+ * @property {number} data.hourly.averagePrecipitation - The average precipitation percentage.
+ * 
+ * @typedef {Object} StudentPoints
+ * @property {string} studentName - The name of the student.
+ * @property {Array<Class>} classes - The classes the student is enrolled in.
+ * @property {number} totalPoints - The total points the student has earned.
+ * 
+ * @typedef {Object} FetchResult
+ * @property {boolean} success - Indicates if the fetch operation was successful.
+ * @property {string} message - The message returned from the fetch operation.
+ * 
+ * @typedef {Object} JoinClassResult
+ * @property {boolean} success - Indicates if the join class operation was successful.
+ * @property {string} message - The message returned from the join class operation.
+ * 
+ * @typedef {Object} LeaveClassResult
+ * @property {boolean} success - Indicates if the leave class operation was successful.
+ * @property {string} message - The message returned from the leave class operation.
+ * 
+ * @typedef {Object} ConfirmLogoutResult
+ * @property {boolean} confirm - Indicates if the logout was confirmed.
+ * 
+ * @typedef {Object} QRCodeResult
+ * @property {string} url - The URL of the generated QR code.
+ * 
+ * @typedef {Object} GeolocationPosition
+ * @property {Object} coords - The coordinates object.
+ * @property {number} coords.latitude - The latitude of the current position.
+ * @property {number} coords.longitude - The longitude of the current position.
+ * 
+ * @typedef {Object} DistanceResult
+ * @property {number} distance - The calculated distance in miles.
+ * 
+ * @typedef {Object} RenderContentProps
+ * @property {string} myActiveTab - The currently active tab.
+ * @property {Function} mySetActiveTab - Function to set the active tab.
+ * @property {Student} student - The student data.
+ * @property {string} qrCode - The generated QR code URL.
+ * @property {boolean} isWithinRadius - Indicates if the student is within the required radius.
+ * @property {Array<Attendance>} filteredAttendance - The filtered attendance records.
+ * @property {Array<StudentPoints>} studentsPoints - The points of students in the selected course.
+ * @property {WeatherData} weatherData - The weather data.
+ * @property {string} inviteCode - The invite code for joining a class.
+ * @property {string} selectedClass - The selected class for filtering attendance.
+ * @property {string} selectedDate - The selected date for filtering attendance.
+ * @property {string} selectedCourse - The selected course for displaying the leaderboard.
+ * @property {boolean} showCheckmark - Indicates if the checkmark should be shown.
+ * @property {Function} fetchStudentData - Function to fetch student data.
+ * @property {Function} generateQRCode - Function to generate a QR code.
+ * @property {Function} confirmLogout - Function to confirm logout.
+ * @property {Function} getWeather - Function to fetch weather data.
+ * @property {Function} joinClass - Function to join a class.
+ * @property {Function} leaveClass - Function to leave a class.
+ * @property {Function} deg2rad - Function to convert degrees to radians.
+ * @property {Function} getDistanceFromLatLonInMiles - Function to calculate distance between two coordinates in miles.
+ * @property {Function} renderContent - Function to render the content based on the active tab.
+ */
 export default function Dashboard() {
     const [student, setStudent] = useState<Student | null>(null);
     const [qrCode, setQrCode] = useState<string | null>(null);

@@ -23,6 +23,62 @@ interface QrScannerProps {
     myClassId: string | null;
 }
 
+/**
+ * QrReader component is responsible for scanning QR codes and handling the scanned data.
+ * It uses the QrScanner library to perform the scanning and processes the scanned data
+ * to update student attendance.
+ *
+ * @component
+ * @param {QrScannerProps} props - The properties for the QrReader component.
+ * @param {string} props.myClassId - The ID of the class for which students are being scanned.
+ *
+ * @returns {JSX.Element} The rendered QrReader component.
+ *
+ * @example
+ * <QrReader myClassId="class123" />
+ *
+ * @typedef {Object} QrScannerProps
+ * @property {string} myClassId - The ID of the class.
+ *
+ * @typedef {Object} Student
+ * @property {string} id - The ID of the student.
+ * @property {string} name - The name of the student.
+ *
+ * @function onScanSuccess
+ * @description Callback function to handle successful QR code scans.
+ * @param {QrScanner.ScanResult} result - The result of the QR code scan.
+ *
+ * @function onScanFail
+ * @description Callback function to handle failed QR code scans.
+ * @param {string | Error} err - The error that occurred during the scan.
+ *
+ * @function handleScanData
+ * @description Processes the scanned QR code data and updates attendance.
+ * @param {string} data - The scanned QR code data.
+ *
+ * @function findStudents
+ * @description Fetches the list of students for the given class ID.
+ * @param {string} classId - The ID of the class.
+ * @returns {Promise<void>} A promise that resolves when the students are loaded.
+ *
+ * @function updateAttendance
+ * @description Updates the attendance record for a student.
+ * @param {string} studentId - The ID of the student.
+ * @param {string} classId - The ID of the class.
+ * @param {Date} date - The date of the attendance.
+ * @param {string} status - The attendance status (e.g., 'present').
+ * @param {number} points - The points awarded for attendance.
+ * @returns {Promise<{ success: boolean, message: string }>} A promise that resolves with the result of the update.
+ *
+ * @useEffect
+ * @description Loads the students when the component mounts or when the class ID changes.
+ *
+ * @useEffect
+ * @description Logs the loaded students when the students state changes.
+ *
+ * @useEffect
+ * @description Initializes the QR scanner when the component mounts and cleans up when it unmounts.
+ */
 const QrReader: React.FC<QrScannerProps> = ({ myClassId }) => {
     const scanner = useRef<QrScanner>();
     const videoEl = useRef<HTMLVideoElement>(null);

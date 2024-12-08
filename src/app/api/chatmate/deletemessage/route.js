@@ -1,5 +1,16 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to delete a message and its replies from the chat log.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object indicating the result of the operation.
+ *
+ * @async
+ * @function POST
+ *
+ * @throws {Error} - Throws an error if there is an issue connecting to the database or processing the request.
+ */
 export async function POST(req) {
     const { classId, message, sender } = await req.json();
 

@@ -5,6 +5,26 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
+/**
+ * The `StudentLogin` component renders a student login page for the AttendMate application.
+ * It includes a form for students to enter their email and password to log in.
+ * Upon successful login, student data is saved to localStorage and the user is redirected to the student dashboard.
+ * If the login fails, an error message is displayed.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered student login page.
+ *
+ * @example
+ * // Usage example:
+ * <StudentLogin />
+ *
+ * @remarks
+ * This component uses React hooks for state management and Next.js router for navigation.
+ * It also includes Tailwind CSS classes for styling.
+ *
+ * @function
+ * @name StudentLogin
+ */
 export default function StudentLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

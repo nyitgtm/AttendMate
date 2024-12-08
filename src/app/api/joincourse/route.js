@@ -1,5 +1,15 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to enroll a student in a course.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object indicating the result of the operation.
+ *
+ * @throws {Error} - Throws an error if there is an issue with the database connection or query.
+ *
+ * @async
+ */
 export async function POST(req) {
     try {
         // Parse the request body

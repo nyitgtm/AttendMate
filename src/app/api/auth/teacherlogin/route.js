@@ -1,6 +1,14 @@
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs'; // Import bcryptjs for password hashing
 
+/**
+ * Handles the POST request for teacher login.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} The response object containing the login result.
+ *
+ * @async
+ */
 export async function POST(req) {
     const { email, password } = await req.json();
 

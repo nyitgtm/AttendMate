@@ -6,6 +6,122 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import QrScanner from '../components/QrScanner';
 
+/**
+ * TeacherLanding component represents the main dashboard for teachers.
+ * It includes various states and functionalities such as managing classes,
+ * tracking attendance, generating reports, and fetching weather data.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ *
+ * @typedef {Object} Teacher
+ * @property {string} teacherId - The unique identifier for the teacher.
+ * @property {string} teacherName - The name of the teacher.
+ * @property {string} teacherEmail - The email of the teacher.
+ * @property {string} password - The password of the teacher.
+ * @property {Array<{classId: string, className: string}>} classes - The classes managed by the teacher.
+ *
+ * @typedef {Object} Student
+ * @property {any} selected - The selected state of the student.
+ * @property {string} studentId - The unique identifier for the student.
+ * @property {string} studentName - The name of the student.
+ * @property {string} studentEmail - The email of the student.
+ * @property {string} studentPicture - The URL of the student's profile picture.
+ * @property {Array<{classId: string, attendance: Array<{scheduledTime: string, checkInTime: string, status: string, points: number}>}>} classes - The classes attended by the student.
+ *
+ * @typedef {Object} WeatherData
+ * @property {Object} data - The weather data.
+ * @property {Object} data.current - The current weather data.
+ * @property {number} data.current.temperature2m - The current temperature in Fahrenheit.
+ * @property {number} data.current.windSpeed10m - The current wind speed in MPH.
+ * @property {Object} data.hourly - The hourly weather data.
+ * @property {number} data.hourly.averagePrecipitation - The average precipitation percentage.
+ *
+ * @typedef {Object} Attendance
+ * @property {string} scheduledTime - The scheduled time for the class.
+ * @property {string} checkInTime - The check-in time for the student.
+ * @property {string} status - The attendance status of the student (e.g., 'present', 'absent').
+ * @property {number} points - The points awarded for attendance.
+ *
+ * @typedef {Object} Class
+ * @property {string} classId - The unique identifier for the class.
+ * @property {string} className - The name of the class.
+ *
+ * @typedef {Object} Report
+ * @property {string} studentName - The name of the student.
+ * @property {string} studentId - The unique identifier for the student.
+ * @property {string} checkInTime - The check-in time for the student.
+ * @property {string} status - The attendance status of the student.
+ * @property {number} points - The points awarded for attendance.
+ *
+ * @typedef {Object} Tab
+ * @property {'home' | 'students' | 'scan' | 'reports'} myActiveTab - The active tab in the dashboard.
+ *
+ * @typedef {Object} SidebarProps
+ * @property {Teacher | null} teacher - The teacher data.
+ *
+ * @typedef {Object} ModalProps
+ * @property {boolean} isOpen - The state of the modal (open or closed).
+ * @property {Function} onClose - The function to close the modal.
+ *
+ * @typedef {Object} WeatherProps
+ * @property {WeatherData | null} weatherData - The weather data.
+ *
+ * @typedef {Object} AttendanceProps
+ * @property {Array<Student> | null} students - The list of students.
+ * @property {Array<string>} presentStudents - The list of present students.
+ * @property {Array<string>} absentStudents - The list of absent students.
+ *
+ * @typedef {Object} ClassProps
+ * @property {Array<Class>} classes - The list of classes.
+ *
+ * @typedef {Object} ReportProps
+ * @property {Array<Report>} reports - The list of reports.
+ *
+ * @typedef {Object} TabProps
+ * @property {Tab} myActiveTab - The active tab in the dashboard.
+ *
+ * @typedef {Object} DateProps
+ * @property {string} selectedDate - The selected date.
+ * @property {string | null} selectedTime - The selected time.
+ *
+ * @typedef {Object} ErrorProps
+ * @property {string | null} error - The error message.
+ *
+ * @typedef {Object} SidebarRef
+ * @property {HTMLDivElement | null} sidebarRef - The reference to the sidebar element.
+ *
+ * @typedef {Object} RouterProps
+ * @property {Function} router - The router function.
+ *
+ * @typedef {Object} ModalState
+ * @property {boolean} isReportModalOpen - The state of the report modal (open or closed).
+ * @property {boolean} isClassesModalOpen - The state of the classes modal (open or closed).
+ * @property {boolean} isAddCourseModalOpen - The state of the add course modal (open or closed).
+ * @property {boolean} isMiniboxVisible - The state of the minibox (visible or hidden).
+ * @property {boolean} isScanning - The state of the scanning box (open or closed).
+ *
+ * @typedef {Object} State
+ * @property {Teacher | null} teacher - The teacher data.
+ * @property {boolean} sidebarOpen - The state of the sidebar (open or closed).
+ * @property {boolean} isReportModalOpen - The state of the report modal (open or closed).
+ * @property {'present' | 'absent'} activeTab - The active tab in the report modal.
+ * @property {boolean} isScanning - The state of the scanning box (open or closed).
+ * @property {boolean} isMiniboxVisible - The state of the minibox (visible or hidden).
+ * @property {boolean} isClassesModalOpen - The state of the classes modal (open or closed).
+ * @property {string | null} selectedClass - The selected class.
+ * @property {string} selectedDate - The selected date.
+ * @property {string | null} selectedTime - The selected time.
+ * @property {WeatherData | null} weatherData - The weather data.
+ * @property {Array<Student> | null} students - The list of students.
+ * @property {Array<string>} presentStudents - The list of present students.
+ * @property {Array<string>} absentStudents - The list of absent students.
+ * @property {string | null} error - The error message.
+ * @property {HTMLDivElement | null} sidebarRef - The reference to the sidebar element.
+ * @property {Function} router - The router function.
+ * @property {boolean} isAddCourseModalOpen - The state of the add course modal (open or closed).
+ * @property {string} myActiveTab - The active tab in the dashboard.
+ */
 export default function TeacherLanding() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);

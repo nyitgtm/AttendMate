@@ -1,6 +1,25 @@
 import { MongoClient } from 'mongodb';
 import { send } from 'process';
 
+/**
+ * Handles the POST request to send a message or reply to a message in a chat log.
+ *
+ * @param {Request} req - The request object containing the message details.
+ * @returns {Promise<Response>} - The response object indicating the result of the operation.
+ *
+ * @async
+ * @function POST
+ * @param {Object} req.body - The request body containing the message details.
+ * @param {string} req.body.classId - The ID of the class to which the message belongs.
+ * @param {string} req.body.message - The content of the message to be sent.
+ * @param {string} req.body.sender - The sender of the message.
+ * @param {boolean} req.body.isReply - Indicates if the message is a reply to another message.
+ * @param {string} [req.body.replyingSender] - The sender of the message being replied to (if applicable).
+ * @param {string} [req.body.replyingText] - The text of the message being replied to (if applicable).
+ *
+ * @throws {Response} 404 - If the chat log or the message to reply to is not found.
+ * @throws {Response} 500 - If there is an internal server error.
+ */
 export async function POST(req) {
     const { classId, message, sender, isReply, replyingSender, replyingText } = await req.json();
 

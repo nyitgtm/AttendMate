@@ -32,6 +32,55 @@ type Message = {
     }[];
 };
 
+/**
+ * ChatMate component handles the chat functionality for students.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ * 
+ * @example
+ * <ChatMate />
+ * 
+ * @remarks
+ * This component fetches student data from local storage and redirects to the student page if no student data is found.
+ * It allows students to send and receive messages in a class chat.
+ * 
+ * @function
+ * @name ChatMate
+ * 
+ * @typedef {Object} Student
+ * @property {string} studentId - The ID of the student.
+ * @property {string} studentName - The name of the student.
+ * @property {Array<{ classId: string }>} classes - The classes the student is enrolled in.
+ * 
+ * @typedef {Object} Message
+ * @property {number} id - The ID of the message.
+ * @property {string} text - The text of the message.
+ * @property {string} sender - The sender of the message.
+ * @property {Array<{ sender: string, text: string }>} replies - The replies to the message.
+ * 
+ * @state {Student | null} student - The current student data.
+ * @state {Array<Message>} myMessages - The messages in the chat.
+ * @state {string} newMessage - The new message being typed.
+ * @state {string | null} classChatId - The ID of the current class chat.
+ * 
+ * @hook {useEffect} - Fetches student data from local storage and sets the student state. Redirects to the student page if no student data is found.
+ * @hook {useEffect} - Sets up an interval to fetch messages every 5 seconds when a class chat is open.
+ * 
+ * @function handleReceiveMessage
+ * @async
+ * @param {string} givenClassId - The ID of the class to fetch messages for.
+ * @description Fetches messages for the given class and updates the state.
+ * 
+ * @function handleSendMessage
+ * @async
+ * @param {string} givenClassId - The ID of the class to send the message to.
+ * @param {string} givenMessage - The message to send.
+ * @param {boolean} isReply - Whether the message is a reply.
+ * @param {string} replyingSender - The sender of the message being replied to.
+ * @param {string} replyingText - The text of the message being replied to.
+ * @description Sends a message to the given class and fetches the updated messages.
+ */
 export default function ChatMate() {
     const [student, setStudent] = useState<Student | null>(null);
     const router = useRouter();

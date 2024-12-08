@@ -1,5 +1,51 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to create a new student.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object containing the result of the operation.
+ *
+ * @async
+ * @function POST
+ *
+ * @throws {Error} - Throws an error if there is an issue with the database connection or operation.
+ *
+ * @example
+ * // Example request body
+ * {
+ *   "studentId": "12345",
+ *   "studentName": "John Doe",
+ *   "studentEmail": "john.doe@example.com",
+ *   "password": "securepassword"
+ * }
+ *
+ * @example
+ * // Example successful response
+ * {
+ *   "message": "Student created successfully",
+ *   "student": {
+ *     "studentId": "12345",
+ *     "studentName": "John Doe",
+ *     "studentEmail": "john.doe@example.com",
+ *     "password": "hashedpassword",
+ *     "macAddress": "",
+ *     "classes": []
+ *   }
+ * }
+ *
+ * @example
+ * // Example error response if student already exists
+ * {
+ *   "message": "Student already exists"
+ * }
+ *
+ * @example
+ * // Example error response if there is a server error
+ * {
+ *   "message": "Internal Server Error"
+ * }
+ */
 export async function POST(req) {
     const { studentId, studentName, studentEmail, password } = await req.json();
 

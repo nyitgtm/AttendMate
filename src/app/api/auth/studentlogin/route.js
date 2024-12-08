@@ -1,5 +1,22 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request for student login.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object containing the login result.
+ *
+ * @async
+ * @function POST
+ *
+ * @example
+ * // Example usage:
+ * const response = await POST(request);
+ * const data = await response.json();
+ * console.log(data.message); // 'Login successful!' or 'Invalid email or password'
+ *
+ * @throws {Error} - Throws an error if there is an issue with the database connection or query.
+ */
 export async function POST(req) {
     const { email, password } = await req.json();
 

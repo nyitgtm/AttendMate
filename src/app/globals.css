@@ -1,3 +1,32 @@
+/* 
+
+  This CSS file contains global styles and animations for the AttendMate application.
+
+  Tailwind CSS Directives:
+  - @tailwind base: Includes Tailwind's base styles.
+  - @tailwind components: Includes Tailwind's component styles.
+  - @tailwind utilities: Includes Tailwind's utility classes.
+
+  Custom Properties:
+  - --background: Defines the background color.
+  - --foreground: Defines the foreground (text) color.
+
+  Media Queries:
+  - @media (prefers-color-scheme: dark): Adjusts the background and foreground colors for dark mode.
+
+  Global Styles:
+  - body: Sets the text color, background color, and font family for the entire document.
+
+  Keyframes and Animations:
+  - @keyframes fadeIn: Defines a fade-in animation.
+  - .animate-fadeIn: Applies the fade-in animation over 1 second with an ease-out timing function.
+  
+  - @keyframes slideIn: Defines a slide-in animation from the left.
+  - .animate-slideIn: Applies the slide-in animation over 1 second with an ease-out timing function.
+  
+  - @keyframes buttonText: Defines a fade-in animation for button text.
+  - .animate-buttonText: Applies the button text fade-in animation over 0.5 seconds with an ease-out timing function.
+*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

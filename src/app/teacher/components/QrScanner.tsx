@@ -28,6 +28,48 @@ interface QrScannerProps {
   
 }
 
+/**
+ * QrScanner component allows teachers to scan QR codes to register student attendance.
+ * 
+ * @component
+ * @param {QrScannerProps} props - The props for the QrScanner component.
+ * @param {string} props.classId - The ID of the class for which attendance is being taken.
+ * 
+ * @returns {JSX.Element} The rendered QrScanner component.
+ * 
+ * @example
+ * <QrScanner classId="class123" />
+ * 
+ * @remarks
+ * This component uses the `useState` and `useEffect` hooks to manage state and side effects.
+ * It also uses `useRef` to manage the input element for scanning.
+ * 
+ * @function findStudents
+ * Fetches the list of students for the given class ID.
+ * 
+ * @function handleInputChange
+ * Handles changes to the input field for scan data.
+ * 
+ * @function handleKeyPress
+ * Handles the Enter key press event to process the scan data.
+ * 
+ * @function handleStartScanning
+ * Starts the scanning process.
+ * 
+ * @function handleStopScanning
+ * Stops the scanning process.
+ * 
+ * @function updateAttendance
+ * Updates the attendance record for a student.
+ * 
+ * @state {string} scanData - The data from the QR code scan.
+ * @state {React.RefObject<HTMLInputElement>} inputRef - Reference to the input element.
+ * @state {string} notification - Notification message to display to the user.
+ * @state {boolean} isScanning - Flag indicating whether scanning is in progress.
+ * @state {Student[] | null} students - List of students in the class.
+ * @state {string} notificationColor - Color of the notification message.
+ * @state {boolean} openQr - Flag indicating whether the camera scanner is open.
+ */
 const QrScanner: React.FC<QrScannerProps> = ({ classId }) => {
     const [scanData, setScanData] = useState('');
     const inputRef = useRef<HTMLInputElement | null>(null);

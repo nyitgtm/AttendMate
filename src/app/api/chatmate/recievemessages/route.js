@@ -1,5 +1,14 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to retrieve chat messages for a specific class.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response containing the chat messages or an error message.
+ *
+ * @async
+ * @function POST
+ */
 export async function POST(req) {
     const { classId } = await req.json();
 

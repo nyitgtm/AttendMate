@@ -23,4 +23,10 @@ if (process.env.NODE_ENV === 'development') {
     clientPromise = client.connect();
 }
 
+/**
+ * A promise that resolves to a MongoDB client instance.
+ * This promise is used to ensure that the MongoDB client is initialized and connected before any database operations are performed.
+ *
+ * @type {Promise<MongoClient>}
+ */
 export default clientPromise;

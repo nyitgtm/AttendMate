@@ -1,5 +1,52 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to retrieve a student by their ID.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object containing the student data or an error message.
+ *
+ * @async
+ * @function POST
+ *
+ * @throws {Error} - Throws an error if there is an issue connecting to the database or processing the request.
+ *
+ * @example
+ * // Example request body
+ * // {
+ * //   "studentId": "12345"
+ * // }
+ *
+ * @example
+ * // Example successful response
+ * // {
+ * //   "message": "Student found",
+ * //   "studentId": "12345",
+ * //   "studentName": "John Doe",
+ * //   "studentEmail": "john.doe@example.com",
+ * //   "macAddress": "00:1A:2B:3C:4D:5E",
+ * //   "points": 100,
+ * //   "classes": [
+ * //     {
+ * //       "classId": "67890",
+ * //       "classPoints": 50,
+ * //       "attendance": [
+ * //         {
+ * //           "scheduledTime": "2023-01-01T10:00:00.000Z",
+ * //           "checkInTime": "2023-01-01T10:05:00.000Z",
+ * //           "points": 10
+ * //         }
+ * //       ]
+ * //     }
+ * //   ]
+ * // }
+ *
+ * @example
+ * // Example error response
+ * // {
+ * //   "message": "Student not found"
+ * // }
+ */
 export async function POST(req) {
     const { studentId } = await req.json();
 

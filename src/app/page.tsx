@@ -1,6 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+/**
+ * The `Home` component serves as the main landing page for the AttendMate application.
+ * It includes a header section with the application logo and a brief description,
+ * followed by login links for teachers and students, and a reviews section showcasing
+ * user testimonials. The page is styled with Tailwind CSS classes and includes animations
+ * for a dynamic user experience.
+ *
+ * @returns {JSX.Element} The JSX code for the home page of the AttendMate application.
+ */
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 text-white">

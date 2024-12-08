@@ -5,6 +5,37 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+/**
+ * TeacherLogin component renders a login form for teachers.
+ * 
+ * This component allows teachers to log in by providing their email and password.
+ * Upon successful login, the teacher's data is saved to localStorage and the user is redirected to the teacher dashboard.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered component.
+ * 
+ * @example
+ * // Usage example:
+ * <TeacherLogin />
+ * 
+ * @remarks
+ * This component uses the `useState` hook to manage the email, password, and message states.
+ * It also uses the `useRouter` hook from Next.js for navigation.
+ * 
+ * @function handleSubmit
+ * @param {React.FormEvent} e - The form submission event.
+ * @description Handles the form submission, sends a POST request to the server, and processes the response.
+ * 
+ * @state {string} email - The email address entered by the user.
+ * @state {string} password - The password entered by the user.
+ * @state {string} message - The message to display in case of an error or success.
+ * 
+ * @requires useState
+ * @requires useRouter
+ * 
+ * @see {@link https://reactjs.org/docs/hooks-state.html|useState}
+ * @see {@link https://nextjs.org/docs/api-reference/next/router|useRouter}
+ */
 export default function TeacherLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

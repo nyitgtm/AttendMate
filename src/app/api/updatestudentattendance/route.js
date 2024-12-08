@@ -1,5 +1,29 @@
 import { MongoClient } from 'mongodb';
 
+/**
+ * Handles the POST request to update student attendance.
+ *
+ * @param {Request} req - The incoming request object.
+ * @returns {Promise<Response>} - The response object indicating the result of the operation.
+ *
+ * @throws {Error} - Throws an error if there is an issue with the database connection or query execution.
+ *
+ * @example
+ * // Example request body:
+ * // {
+ * //   "studentId": "12345",
+ * //   "classId": "67890",
+ * //   "date": "2023-10-05T00:00:00.000Z",
+ * //   "status": "present",
+ * //   "points": 10
+ * // }
+ *
+ * @description
+ * This function updates the attendance record for a student in a specific class on a given date.
+ * If the attendance record for the specified date does not exist, it creates a new one.
+ * If the attendance record exists, it updates the status and points.
+ * The function connects to a MongoDB database, finds the student and class, and updates the attendance record accordingly.
+ */
 export async function POST(req) {
     try {
         // Parse the request body

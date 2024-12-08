@@ -46,6 +46,70 @@ type Message = {
     }[];
 };
 
+/**
+ * ChatMate component handles the chat functionality for teachers.
+ * 
+ * @component
+ * @returns {JSX.Element} The rendered ChatMate component.
+ * 
+ * @remarks
+ * This component fetches and displays messages for a specific class chat.
+ * It allows teachers to send, receive, and delete messages.
+ * 
+ * @example
+ * ```tsx
+ * <ChatMate />
+ * ```
+ * 
+ * @function
+ * @name ChatMate
+ * 
+ * @description
+ * The ChatMate component is responsible for managing the chat interface for teachers.
+ * It retrieves teacher data from local storage and redirects to the teacher page if no valid data is found.
+ * It also handles fetching, sending, and deleting messages for a specific class chat.
+ * 
+ * @hook
+ * @name useEffect
+ * @description
+ * - Fetches teacher data from local storage and sets the teacher state.
+ * - Sets up an interval to fetch messages for the selected class chat every 5 seconds.
+ * 
+ * @hook
+ * @name useState
+ * @description
+ * - `teacher`: Stores the teacher data.
+ * - `myMessages`: Stores the list of messages for the selected class chat.
+ * - `newMessage`: Stores the new message input value.
+ * - `classChatId`: Stores the ID of the selected class chat.
+ * 
+ * @function
+ * @name handleReceiveMessage
+ * @description
+ * Fetches messages for the given class ID and updates the `myMessages` state.
+ * 
+ * @param {string} givenClassId - The ID of the class to fetch messages for.
+ * 
+ * @function
+ * @name handleSendMessage
+ * @description
+ * Sends a new message or a reply to the given class ID and updates the messages.
+ * 
+ * @param {string} givenClassId - The ID of the class to send the message to.
+ * @param {string} givenMessage - The message text to send.
+ * @param {boolean} isReply - Indicates if the message is a reply.
+ * @param {string} replyingSender - The sender of the message being replied to.
+ * @param {string} replyingText - The text of the message being replied to.
+ * 
+ * @function
+ * @name deleteMessage
+ * @description
+ * Deletes a message for the given class ID and updates the messages.
+ * 
+ * @param {string} givenClassId - The ID of the class to delete the message from.
+ * @param {string} givenMessage - The message text to delete.
+ * @param {string} sender - The sender of the message to delete.
+ */
 export default function ChatMate() {
     const [teacher, setTeacher] = useState<Teacher | null>(null);
     const router = useRouter();
