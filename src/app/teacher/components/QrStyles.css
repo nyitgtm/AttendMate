@@ -1,3 +1,14 @@
+/* 
+
+  Styles for the QR code reader component:
+  - .qr-reader: Container for the QR reader, set to take full width and height, centered with relative positioning.
+  - .qr-reader video: Video element within the QR reader, set to cover the entire container.
+  - .qr-reader .qr-box: Box within the QR reader, forced to take full width and aligned to the left.
+  - .qr-reader .qr-frame: Frame within the QR reader, absolutely positioned at the center with no fill.
+  
+  Media Queries:
+  - For screens with a max-width of 426px, the QR reader container is set to take full width.
+*/
 .qr-reader {
     width: 100%;
     height: 100%;

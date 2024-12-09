@@ -48,6 +48,62 @@ Anmolak Singh
 - **EYOYO Scanner**: A barcode scanner used to scan student IDs for attendance tracking. [Purchase here](https://www.amazon.com/dp/B0BLCSQ72G?ref=cm_sw_r_apin_dp_SAJB676PKE4KA55NKDH2&ref_=cm_sw_r_apin_dp_SAJB676PKE4KA55NKDH2&social_share=cm_sw_r_apin_dp_SAJB676PKE4KA55NKDH2&peakEvent=4&starsLeft=1&skipTwisterOG=1&th=1)
 - **RFID Reader**: A device used to read RFID tags for student identification and attendance tracking. [Purchase here](https://www.amazon.com/dp/B0D4TSFP7M?ref=ppx_pop_mob_ap_share&th=1)
 
+## Screenshots
+## Student
+### Login page
+![Student Login](examplepics/studentloginpage.png)
+
+### Create Account
+![Student Create Page](examplepics/studentcreate.png)
+
+### Dashboard
+![Student Dashboard](examplepics/studentdash.png)
+
+### Scan QR Code
+![Student QR Code](examplepics/studentqrcode.png)
+
+### History
+![Student History](examplepics/studenthistory1.png)
+
+![Student History](examplepics/studenthistory2.png)
+
+### Leaderboard
+![Student Leaderboard](examplepics/studentleaderboard.png)
+
+### ChatMate
+![Student Chatmate](examplepics/studentchatmate1.png)
+
+![Student Chatmate](examplepics/studentchatmate2.png)
+
+## Teacher
+### Login Page
+![Teacher Login](examplepics/teacherlogin.png)
+
+### Dashboard
+
+![Teacher Login 1](examplepics/teacherdash1.png)
+![Teacher Login 2](examplepics/teacherdash2.png)
+![Teacher Login 3](examplepics/teacherdash3.png)
+![Teacher Login 4](examplepics/teacherdash4.png)
+
+### See Students
+![Teacher See Students](examplepics/teacherseestudents.png)
+
+### Scan
+
+![Teacher Scan](examplepics/teacherscan1.png)
+![Teacher Scan](examplepics/teacherscan2.png)
+![Teacher Scan](examplepics/teacherscan3.png)
+
+### Report
+
+![Teacher Report](examplepics/teacherreport.png)
+
+### Chat
+
+![Teacher Chat](examplepics/teacherchat1.png)
+![Teacher Chat](examplepics/teacherchat2.png)
+
 ## Burn up Chart
 |Week / Sprint|Goals                               |Estimated Efforts|So Far|Estimated Efforts Delta|So Far Delta|Estimated Day|Actual Day|
 |-------------|------------------------------------|-----------------|------|-----------------------|------------|-------------|----------|
@@ -59,7 +115,7 @@ Anmolak Singh
 |5            |Add Features                        |5                |5     |40                     |40          |11/30        |11/30     |
 |6            |Presentation + Deliver Final Product|2                |2     |42                     |42          |12/2         |12/2      |
 
-![BurnUpChart](burnupchart.png)
+![BurnUpChart](examplepics/burnupchart.png)
 
 ## Software Development Life Cycle Methologies
 The team chose to use software models, concurrent and V models, paired with agile techniques, DSDM (Dynamic Systems Development Method), and Scrum for a project. Concurrent allows for rapid iteration and integration, allowing team collaboration and changes without hindering progress. V model allows transparency between clients and developers, enabling early testing, verification, and improved software quality. Scrum, an agile technique, is best for team collaboration projects like AttendMate, using sprints to break down projects into smaller parts. DSDM, which follows the MOSCOW rule, ensures compliance with client requirements and works well with project deadlines and time constraints. These models will help improve the quality of software and ensure client satisfaction.
